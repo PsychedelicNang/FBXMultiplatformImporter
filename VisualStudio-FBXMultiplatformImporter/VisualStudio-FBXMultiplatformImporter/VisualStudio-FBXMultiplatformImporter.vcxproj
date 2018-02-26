@@ -143,6 +143,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="TestCPPClassDLL.h" />
+    <ClInclude Include="TestCPPClassDLLHandler.h" />
+    <ClInclude Include="TestCPPLibrary.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="TestCPPClassDLL.cpp" />
+    <ClCompile Include="TestCPPClassDLLHandler.cpp" />
+    <ClCompile Include="TestCPPLibrary.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
