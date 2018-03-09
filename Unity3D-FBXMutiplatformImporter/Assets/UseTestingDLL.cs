@@ -5,22 +5,24 @@ using System.Runtime.InteropServices;
 using System.IO;
 using System;
 
-public class UseDLL : MonoBehaviour {
-    [DllImport("VisualStudio-FBXMultiplatformImporter")]
+public class UseTestingDLL : MonoBehaviour {
+    [DllImport("TestingEnvironmentDLL")]
     private static extern float TestMultiply(float _a, float _b);
 
-    [DllImport("VisualStudio-FBXMultiplatformImporter")]
+    [DllImport("TestingEnvironmentDLL")]
     static public extern IntPtr CreateCPPClass();
 
-    [DllImport("VisualStudio-FBXMultiplatformImporter")]
+    [DllImport("TestingEnvironmentDLL")]
     static public extern void DestroyCPPClass(IntPtr pClassNameObject);
 
-    [DllImport("VisualStudio-FBXMultiplatformImporter")]
+    [DllImport("TestingEnvironmentDLL")]
     static public extern void CPPClassMemberFunciton(IntPtr pClassNameObject, float _float);
 
-    [DllImport("VisualStudio-FBXMultiplatformImporter")]
+    [DllImport("TestingEnvironmentDLL")]
     static public extern void FillOutArray(IntPtr pClassNameObject, int arrayLength, [MarshalAs(UnmanagedType.LPArray)]int[] incides);
-    //static public extern void FillOutArray(IntPtr pClassNameObject);
+
+    CSSideCPPClass cSSideCPPClass;
+    IntPtr m_csClass;
 
     public class CSSideCPPClass
     {
@@ -38,11 +40,11 @@ public class UseDLL : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        CSSideCPPClass cSSideCPPClass = new CSSideCPPClass();
+        cSSideCPPClass = new CSSideCPPClass();
 
         print("Native Multiply: " + TestMultiply(5, 4));
 
-        IntPtr m_csClass = CreateCPPClass();
+        m_csClass = CreateCPPClass();
 
         CPPClassMemberFunciton(m_csClass, 5);
 
@@ -55,10 +57,12 @@ public class UseDLL : MonoBehaviour {
         {
             print(cSSideCPPClass.indices[i] + ", ");
         }
+    }
 
+    private void OnDestroy()
+    {
         DestroyCPPClass(m_csClass);
 
         m_csClass = IntPtr.Zero;
-
     }
 }

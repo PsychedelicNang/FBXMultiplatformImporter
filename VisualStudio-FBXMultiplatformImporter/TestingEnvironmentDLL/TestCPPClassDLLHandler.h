@@ -11,7 +11,7 @@ extern "C" {
 	 TESTFUNCDLL_API void FillOutArray(CPPClass* _cppClassObject, int _length, int _array[]);
 	 //TESTFUNCDLL_API void FillOutArray(CPPClass* _cppClassObject);
 	 TESTFUNCDLL_API bool CPPClassMemberFunciton(CPPClass* _cppClassObject, float _float);
-
+	// TESTFUNCDLL_API bool LoadMeshFromFBXFileWithoutTangents(CPPClass* _cppClassObject, const char * _fileName);
 //#ifdef __cplusplus
 }
 //#endif

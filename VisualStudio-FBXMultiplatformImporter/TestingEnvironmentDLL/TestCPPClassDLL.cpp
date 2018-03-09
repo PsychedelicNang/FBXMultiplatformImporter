@@ -5,14 +5,17 @@ CPPClass::CPPClass()
 	m_float = 0;
 	m_numberOfIndices = 0;
 	m_indices = 0;
+
 }
 
 CPPClass::~CPPClass()
 {
 	m_float = 0;
 	m_numberOfIndices = 0;
+
 	delete[] m_indices;
 	m_indices = 0;
+
 }
 
 //void CPPClass::FillOutArray()

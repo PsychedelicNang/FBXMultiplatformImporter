@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef VISUALSTUDIOFBXMULTIPLATFORMIMPORTER_EXPORTS
+#ifdef TESTINGENVIRONMENTDLL_EXPORTS
 #define TESTFUNCDLL_API __declspec(dllexport)
 #else
 #define TESTFUNCDLL_API __declspec(dllimport)
