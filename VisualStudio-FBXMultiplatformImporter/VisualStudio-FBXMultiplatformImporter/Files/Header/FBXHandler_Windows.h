@@ -32,16 +32,11 @@ namespace MeshComponentsAdvanced {
 extern "C" {
 	using namespace MeshComponentsAdvanced;
 	class FBXIMPORTER_WINDOWSDLL_API FBXHandler {
-		float	m_float;
-		int		m_numberOfIndices;
-		//int*	m_indices;
 		MeshComponentsAdvanced::Mesh*	m_mesh;
 
 	public:
 		FBXHandler();
 		~FBXHandler();
-		void FillOutArray(int _length, int _array[]);
-		bool SetFloat(float _float);
 		void FillOutMesh();
 	};
 }

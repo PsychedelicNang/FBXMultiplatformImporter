@@ -14,16 +14,6 @@ FBXIMPORTER_WINDOWSDLL_API void DestroyFBXHandler(FBXHandler * _fbxHandler)
 	}
 }
 
-FBXIMPORTER_WINDOWSDLL_API void FillOutArray(FBXHandler * _fbxHandler, int _length, int _array[])
-{
-	_fbxHandler->FillOutArray(_length, _array);
-}
-
-FBXIMPORTER_WINDOWSDLL_API bool SetFloat(FBXHandler * _fbxHandler, float _float)
-{
-	return _fbxHandler->SetFloat(_float);
-}
-
 FBXIMPORTER_WINDOWSDLL_API void FillOutMesh(FBXHandler * _fbxHandler)
 {
 	_fbxHandler->FillOutMesh();

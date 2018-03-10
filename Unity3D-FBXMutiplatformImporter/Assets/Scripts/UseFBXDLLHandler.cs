@@ -22,8 +22,8 @@ public class UseFBXDLLHandler : MonoBehaviour
     [DllImport("FBXImporterDLL_WINDOWS")]
     static public extern void FillOutMesh(IntPtr pClassNameObject);
 
-    CSSideCPPClass cppImitationClass;
-    IntPtr m_cppClass;
+    CSImportedFBXScene  m_csImportedFBXScene;
+    IntPtr              m_cppImportedFBXScene;
 
     [StructLayout(LayoutKind.Sequential)]
     public class Mesh
@@ -35,106 +35,37 @@ public class UseFBXDLLHandler : MonoBehaviour
     Mesh m_mesh;
 
     [StructLayout(LayoutKind.Sequential)]
-    public class CSSideCPPClass
+    public class CSImportedFBXScene
     {
-        public CSSideCPPClass()
+        public CSImportedFBXScene()
         {
-            //m_numberOfIndices = 10;
-            //indices = new int[m_numberOfIndices];
-            //m_mesh = new Mesh();
-            //Marshal.StructureToPtr(m_mesh, cppMesh, false);
+            m_CPPMeshPtr = IntPtr.Zero;
         }
 
-
-
-        public float m_float;
-        public uint m_numberOfIndices;
-        //public Mesh m_mesh;
         public IntPtr m_CPPMeshPtr;
-        //[MarshalAs(UnmanagedType.LPStruct)]
-        //public Mesh m_mesh;
-        //[MarshalAs(UnmanagedType.LPArray)]
-        //public int[] indices;
-
-        //[StructLayout(LayoutKind.Sequential)]
-        //public class Mesh
-        //{
-        //    public Mesh()
-        //    {
-        //        //vertices = IntPtr.Zero;
-        //        //indices = new uint[1];
-        //        indexCount = 0;
-        //        vertexCount = 0;
-        //        //public IntPtr vertices;
-        //        //[MarshalAs(UnmanagedType.LPArray)]
-        //        //public uint[] indices;
-        //        //public uint indexCount;
-        //        //public uint vertexCount;
-        //    }
-
-        //    //public IntPtr vertices;
-        //    //[MarshalAs(UnmanagedType.LPArray)]
-        //    //public uint[] indices;
-        //    public uint indexCount;
-        //    public uint vertexCount;
-        //}
-
-        //public Mesh m_mesh;
-        //public IntPtr cppMesh;
     }
 
     // Use this for initialization
     void Start()
     {
-        cppImitationClass = new CSSideCPPClass();
+        m_csImportedFBXScene = new CSImportedFBXScene();
 
         // I have my C++ handler which is unmanaged memory (we need to delete)
-        m_cppClass = CreateFBXHandler();
+        m_cppImportedFBXScene = CreateFBXHandler();
 
-        Marshal.StructureToPtr(cppImitationClass, m_cppClass, false);
-        bool result = SetFloat(m_cppClass, 5);
+        FillOutMesh(m_cppImportedFBXScene);
 
-        FillOutMesh(m_cppClass);
+        m_csImportedFBXScene = (CSImportedFBXScene)Marshal.PtrToStructure(m_cppImportedFBXScene, typeof(CSImportedFBXScene));
 
-        if (result)
-        {
-            //print("IntPtr: " + m_cppClass.ToInt32());
-            cppImitationClass = (CSSideCPPClass)Marshal.PtrToStructure(m_cppClass, typeof(CSSideCPPClass));
-            //print(cppImitationClass.m_float);
-            //print(cppImitationClass.m_mesh.indexCount);
-            //print(cppImitationClass.m_mesh.vertexCount);
-
-            m_mesh = (Mesh)Marshal.PtrToStructure(cppImitationClass.m_CPPMeshPtr, typeof(Mesh));
-            print(m_mesh.vertexCount);
-            print(m_mesh.indexCount);
-        }
-
-
-        // m_mesh = (Mesh)Marshal.PtrToStructure(cppImitationClass.m_CPPMeshPtr, typeof(Mesh));
-
-        //print(m_mesh.vertexCount);
-        //print(m_mesh.indexCount);
-        //FillOutArray(m_cppClass, 10, cppImitationClass.indices);
-
-        //print("CPP Class array member variables: ");
-        //for (int i = 0; i < cppImitationClass.m_numberOfIndices; i++)
-        //{
-        //    print(cppImitationClass.indices[i] + ", ");
-        //}
-
-        //Marshal.StructureToPtr(cppImitationClass.m_mesh, cppMesh, false);
-
-
-        //cppImitationClass.m_mesh = (CSSideCPPClass.Mesh)Marshal.PtrToStructure(cppImitationClass.cppMesh, typeof(CSSideCPPClass.Mesh));
-
-        //print(cppImitationClass.m_mesh.vertexCount);
-        //LoadMeshFromFBXFileWithoutTangents(m_csClass, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\SciFiCharacter.fbx");
+        m_mesh = (Mesh)Marshal.PtrToStructure(m_csImportedFBXScene.m_CPPMeshPtr, typeof(Mesh));
+        print(m_mesh.vertexCount);
+        print(m_mesh.indexCount);
     }
 
     private void OnDestroy()
     {
-        DestroyFBXHandler(m_cppClass);
+        DestroyFBXHandler(m_cppImportedFBXScene);
 
-        m_cppClass = IntPtr.Zero;
+        m_cppImportedFBXScene = IntPtr.Zero;
     }
 }
