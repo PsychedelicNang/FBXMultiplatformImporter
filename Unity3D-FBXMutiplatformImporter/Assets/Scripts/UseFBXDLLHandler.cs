@@ -26,23 +26,22 @@ public class UseFBXDLLHandler : MonoBehaviour
     IntPtr              m_cppImportedFBXScene;
 
     [StructLayout(LayoutKind.Sequential)]
-    public class Mesh
-    {
-        public uint vertexCount;
-        public uint indexCount;
-    }
-
-    Mesh m_mesh;
-
-    [StructLayout(LayoutKind.Sequential)]
     public class CSImportedFBXScene
     {
+        [StructLayout(LayoutKind.Sequential)]
+        public class Mesh
+        {
+            public uint vertexCount;
+            public uint indexCount;
+        }
+
         public CSImportedFBXScene()
         {
             m_CPPMeshPtr = IntPtr.Zero;
         }
 
         public IntPtr m_CPPMeshPtr;
+        public Mesh m_mesh;
     }
 
     // Use this for initialization
@@ -57,9 +56,9 @@ public class UseFBXDLLHandler : MonoBehaviour
 
         m_csImportedFBXScene = (CSImportedFBXScene)Marshal.PtrToStructure(m_cppImportedFBXScene, typeof(CSImportedFBXScene));
 
-        m_mesh = (Mesh)Marshal.PtrToStructure(m_csImportedFBXScene.m_CPPMeshPtr, typeof(Mesh));
-        print(m_mesh.vertexCount);
-        print(m_mesh.indexCount);
+        m_csImportedFBXScene.m_mesh = (CSImportedFBXScene.Mesh)Marshal.PtrToStructure(m_csImportedFBXScene.m_CPPMeshPtr, typeof(CSImportedFBXScene.Mesh));
+        print(m_csImportedFBXScene.m_mesh.vertexCount);
+        print(m_csImportedFBXScene.m_mesh.indexCount);
     }
 
     private void OnDestroy()
