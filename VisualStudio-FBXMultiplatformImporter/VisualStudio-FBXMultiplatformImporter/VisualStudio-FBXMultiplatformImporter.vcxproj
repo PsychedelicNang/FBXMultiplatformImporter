@@ -18,12 +18,21 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Files\Header\FBXHandler_Windows.h" />
+    <ClInclude Include="Files\Header\ImporterHandler_Windows.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Files\Source\FBXHandler_Windows.cpp" />
+    <ClCompile Include="Files\Source\ImporterHandler_Windows.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{019F1AF1-5DC8-4256-8DD3-23094D2F1E86}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VisualStudioFBXMultiplatformImporter</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectName>FBXImporterDLL_WINDOWS</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -100,7 +109,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;VISUALSTUDIOFBXMULTIPLATFORMIMPORTER_EXPORTS;_WINDOWS;_USRDLL;FBXSDK_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;FBXIMPORTER_WINDOWSDLL_EXPORTS;_WINDOWS;_USRDLL;FBXSDK_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2018.1.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
