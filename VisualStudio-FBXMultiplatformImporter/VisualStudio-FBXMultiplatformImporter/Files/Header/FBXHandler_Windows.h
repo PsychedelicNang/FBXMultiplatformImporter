@@ -9,23 +9,21 @@
 #include <fbxsdk.h>
 
 namespace MeshComponentsAdvanced {
-	struct Vector4 {
-		float x, y, z, w;
-	};
-
-	struct VertexPositionNormalUV {
-		float position[4];
-		float normals[4];
-		float uvs[2];
+	struct Vector3 {
+		Vector3();
+		~Vector3();
+		float x;
+		float y;
+		float z;
 	};
 
 	struct Mesh {
 		Mesh();
 		~Mesh();
-		//VertexPositionNormalUV*	m_vertices;
-		//unsigned*				m_indices;
-		unsigned				m_vertexCount;
-		unsigned				m_indexCount;
+		Vector3*	m_allVerticesPositions;
+		unsigned*	m_indices;
+		unsigned	m_vertexCount;
+		unsigned	m_indexCount;
 	};
 }
 
