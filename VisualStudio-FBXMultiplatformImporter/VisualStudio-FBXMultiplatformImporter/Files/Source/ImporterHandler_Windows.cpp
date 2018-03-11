@@ -18,3 +18,8 @@ FBXIMPORTER_WINDOWSDLL_API void FillOutMesh(FBXHandler * _fbxHandler)
 {
 	_fbxHandler->FillOutMesh();
 }
+
+FBXIMPORTER_WINDOWSDLL_API int LoadMeshFromFBXFile(FBXHandler * _fbxHandler, const char* _filePath)
+{
+	return _fbxHandler->LoadMeshFromFBXFile(_filePath);
+}

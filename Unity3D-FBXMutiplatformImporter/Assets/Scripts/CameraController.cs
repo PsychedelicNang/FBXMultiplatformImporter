@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour {
 
-    Camera m_sceneCamera;
+    //Camera m_sceneCamera;
     Transform m_cameraTransform;
 
     Vector3 m_previousCursosPosition;
@@ -14,7 +14,7 @@ public class CameraController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        m_sceneCamera = GetComponent<Camera>();
+       // m_sceneCamera = GetComponent<Camera>();
         m_cameraTransform = GetComponent<Transform>();
 	}
 

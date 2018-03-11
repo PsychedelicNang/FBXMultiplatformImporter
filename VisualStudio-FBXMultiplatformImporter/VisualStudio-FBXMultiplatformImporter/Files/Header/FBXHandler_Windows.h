@@ -6,7 +6,7 @@
 #define FBXIMPORTER_WINDOWSDLL_API __declspec(dllimport)
 #endif
 
-#include <fbxsdk.h>
+#include "fbxsdk.h"
 
 namespace MeshComponentsAdvanced {
 	struct Vector3 {
@@ -36,5 +36,6 @@ extern "C" {
 		FBXHandler();
 		~FBXHandler();
 		void FillOutMesh();
+		int LoadMeshFromFBXFile(const char* _filePath);
 	};
 }

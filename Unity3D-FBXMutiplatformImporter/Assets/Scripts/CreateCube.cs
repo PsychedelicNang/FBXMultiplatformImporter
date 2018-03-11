@@ -7,7 +7,7 @@ public class CreateCube : MonoBehaviour {
     // Use this for initialization
     void Start () {
         MeshFilter m_meshFilter = gameObject.AddComponent<MeshFilter>();
-        MeshRenderer m_meshRenderer = gameObject.AddComponent<MeshRenderer>();
+       // MeshRenderer m_meshRenderer = gameObject.AddComponent<MeshRenderer>();
 
         Mesh m_mesh = m_meshFilter.mesh;
 
