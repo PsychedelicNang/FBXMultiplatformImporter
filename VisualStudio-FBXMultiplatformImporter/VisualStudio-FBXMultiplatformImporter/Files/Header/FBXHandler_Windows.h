@@ -9,6 +9,13 @@
 #include "fbxsdk.h"
 
 namespace MeshComponentsAdvanced {
+	struct Vector2 {
+		Vector2();
+		~Vector2();
+		float x;
+		float y;
+	};
+
 	struct Vector3 {
 		Vector3();
 		~Vector3();
@@ -21,6 +28,8 @@ namespace MeshComponentsAdvanced {
 		Mesh();
 		~Mesh();
 		Vector3*	m_allVerticesPositions;
+		Vector3*	m_allVerticesNormals;
+		Vector2*	m_allVerticesUVs;
 		unsigned*	m_indices;
 		unsigned	m_vertexCount;
 		unsigned	m_indexCount;

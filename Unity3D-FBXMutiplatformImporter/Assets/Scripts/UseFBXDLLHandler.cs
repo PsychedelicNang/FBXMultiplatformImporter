@@ -36,6 +36,19 @@ public class UseFBXDLLHandler : MonoBehaviour
     /***************** Class Definitions *****************/
     public class CSMesh
     {
+        public CSMesh()
+        {
+            m_allVerticesPositions = null;
+            m_allVerticesNormals = null;
+            m_allVerticesUVs = null;
+            m_indices = null;
+        }
+        public struct Vector2
+        {
+            public float x;
+            public float y;
+        }
+        
         public struct Vector3
         {
             public float x;
@@ -44,6 +57,8 @@ public class UseFBXDLLHandler : MonoBehaviour
         }
 
         public Vector3[] m_allVerticesPositions;
+        public Vector3[] m_allVerticesNormals;
+        public Vector2[] m_allVerticesUVs;
 
         public uint[] m_indices;
 
@@ -63,9 +78,13 @@ public class UseFBXDLLHandler : MonoBehaviour
             {
                 m_allVerticesPositions  = IntPtr.Zero;
                 m_indices               = IntPtr.Zero;
+                m_normals               = IntPtr.Zero;
+                m_uvs                   = IntPtr.Zero;
             }
 
             public IntPtr m_allVerticesPositions;
+            public IntPtr m_normals;
+            public IntPtr m_uvs;
             public IntPtr m_indices;
             public uint m_vertexCount;
             public uint m_indexCount;
@@ -97,50 +116,49 @@ public class UseFBXDLLHandler : MonoBehaviour
 
         m_csImportedFBXScene = new CSImportedFBXScene();
 
-        // I have my C++ handler which is unmanaged memory (we need to delete)
+        // C++ handler which is unmanaged memory (we need to delete)
         m_cppImportedFBXScene = CreateFBXHandler();
-        
-        bool result = LoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
 
-        if (result)
+        int result = LoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+
+        if (1 == result)
         {
-            Vector3[] unityVerts = new Vector3[m_csMesh.m_vertexCount];
-            int[] unityIndices = new int[m_csMesh.m_indexCount];
-
-            for (int i = 0; i < m_csMesh.m_vertexCount; i++)
-            {
-                unityVerts[i].x = m_csMesh.m_allVerticesPositions[i].x;
-                unityVerts[i].y = m_csMesh.m_allVerticesPositions[i].y;
-                unityVerts[i].z = m_csMesh.m_allVerticesPositions[i].z;
-            }
-
-            for (int i = 0; i < m_csMesh.m_indexCount; i++)
-            {
-                unityIndices[i] = (int)m_csMesh.m_indices[i];
-            }
-
-            m_unityMesh.vertices = unityVerts;
-            m_unityMesh.triangles = unityIndices;
-            m_meshFilter.mesh = m_unityMesh;
-
+            // If the file loaded a mesh successfully, let's fill out the mesh component of this game object.
+            FillOutGameObjectMesh();
 
             //m_csMesh.m_texture = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Base_Color.png");
             //
             //m_meshRenderer.material.mainTexture = m_csMesh.m_texture;
         }
 
-        //unityMesh.RecalculateBounds();
-        //m_unityMesh.RecalculateNormals();
+        // If the file did not load, lets check if there is a specific error message we can display to the user.
+        switch (result)
+        {
+            case 0:
+                print("File path did not load");
+                break;
+            case -1:
+                print("File did not contain mesh data");
+                break;
+            default:
+                break;
+        }
 
-        m_objectTransform.Translate(new Vector3(0.0f, -10.0f));
-        m_objectTransform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        m_objectTransform.Translate(new Vector3(0.0f, -10.0f));         // For testing
+        m_objectTransform.localScale = new Vector3(0.1f, 0.1f, 0.1f);   // For testing
     }
 
-    private bool LoadFBXFile(string _fbxFilePath)
+    private int LoadFBXFile(string _fbxFilePath)
     {
         int result = LoadMeshFromFBXFile(m_cppImportedFBXScene, _fbxFilePath);
 
-        if (result == 1)
+        if (result == 0)
+        {
+            print("Incorrect file path");
+            return 0;
+        }
+
+        else if (result == 1)
         {
             m_csImportedFBXScene = (CSImportedFBXScene)Marshal.PtrToStructure(m_cppImportedFBXScene, typeof(CSImportedFBXScene));
 
@@ -149,64 +167,144 @@ public class UseFBXDLLHandler : MonoBehaviour
             uint vertexCount = m_csImportedFBXScene.m_mesh.m_vertexCount;
             uint indexCount = m_csImportedFBXScene.m_mesh.m_indexCount;
 
-            //unityMesh.vertices = new Vector3[vertexCount];
-            //unityMesh.triangles = new int[indexCount];
-
             m_csMesh.m_vertexCount = vertexCount;
             m_csMesh.m_indexCount = indexCount;
 
-            m_csMesh.m_allVerticesPositions = new CSMesh.Vector3[vertexCount];
-            m_csMesh.m_indices = new uint[indexCount];
-
-            unsafe
+            if (vertexCount > 0)
             {
-                CSMesh.Vector3* vertices = (CSMesh.Vector3*)m_csImportedFBXScene.m_mesh.m_allVerticesPositions.ToPointer();
+                m_csMesh.m_allVerticesPositions = new CSMesh.Vector3[vertexCount];
+                m_csMesh.m_indices = new uint[indexCount];
 
-                for (int i = 0; i < vertexCount; i++)
+                unsafe
                 {
-                    //unityMesh.vertices[i].x = vertices[i].x;
-                    //unityMesh.vertices[i].y = vertices[i].y;
-                    //unityMesh.vertices[i].z = vertices[i].z;
+                    CSMesh.Vector3* vertices = (CSMesh.Vector3*)m_csImportedFBXScene.m_mesh.m_allVerticesPositions.ToPointer();
+                    if (vertices != null)
+                    {
+                        for (int i = 0; i < vertexCount; i++)
+                        {
+                            m_csMesh.m_allVerticesPositions[i].x = vertices[i].x;
+                            m_csMesh.m_allVerticesPositions[i].y = vertices[i].y;
+                            m_csMesh.m_allVerticesPositions[i].z = vertices[i].z;
+                        }
+                    }
 
-                     m_csMesh.m_allVerticesPositions[i].x = vertices[i].x;
-                     m_csMesh.m_allVerticesPositions[i].y = vertices[i].y;
-                     m_csMesh.m_allVerticesPositions[i].z = vertices[i].z;
+                    else
+                    {
+                        print("The mesh VERTEX POSITION data did not get read properly.");
+                    }
+
+                    uint* indices = (uint*)m_csImportedFBXScene.m_mesh.m_indices.ToPointer();
+                    if (indices != null)
+                    {
+                        for (int i = 0; i < indexCount; i++)
+                        {
+                            m_csMesh.m_indices[i] = indices[i];
+                        }
+                    }
+
+                    else
+                    {
+                        print("The mesh INDICE data did not get read properly.");
+                    }
+
+                    CSMesh.Vector3* normals = (CSMesh.Vector3*)m_csImportedFBXScene.m_mesh.m_normals.ToPointer();
+                    if (normals != null)
+                    {
+                        m_csMesh.m_allVerticesNormals = new CSMesh.Vector3[vertexCount];
+
+                        for (int i = 0; i < vertexCount; i++)
+                        {
+                            m_csMesh.m_allVerticesNormals[i].x = normals[i].x;
+                            m_csMesh.m_allVerticesNormals[i].y = normals[i].y;
+                            m_csMesh.m_allVerticesNormals[i].z = normals[i].z;
+                        }
+                    }
+                    else
+                    {
+                        print("This mesh did not have NORMALS");
+                    }
+
+                    CSMesh.Vector2* uvs = (CSMesh.Vector2*)m_csImportedFBXScene.m_mesh.m_uvs.ToPointer();
+                    if (uvs != null)
+                    {
+                        m_csMesh.m_allVerticesUVs = new CSMesh.Vector2[vertexCount];
+
+                        for (int i = 0; i < vertexCount; i++)
+                        {
+                            m_csMesh.m_allVerticesUVs[i].x = uvs[i].x;
+                            m_csMesh.m_allVerticesUVs[i].y = uvs[i].y;
+                        }
+                    }
+                    else
+                    {
+                        print("This mesh did not have UVS");
+                    }
                 }
 
-                uint* indices = (uint*)m_csImportedFBXScene.m_mesh.m_indices.ToPointer();
-                for (int i = 0; i < indexCount; i++)
-                {
-                    //unityMesh.triangles[i] = (int)indices[i];
-                    m_csMesh.m_indices[i] = indices[i];
-                }
+                return 1;
             }
 
-            //print(m_csImportedFBXScene.m_mesh.m_vertexCount);
-            //print(m_csImportedFBXScene.m_mesh.m_indexCount);
-
-            //unityMesh.RecalculateNormals();
-
-            return true;
+            // Return false if the file loaded but some of the mesh data was incorrect
+            return -1;
         }
 
-        if (result == -1)
+        else
         {
-            print("File path did not load");
+            return result;
         }
+    }
 
+    private void FillOutGameObjectMesh()
+    {
+        Vector3[] t_unityVerts = new Vector3[m_csMesh.m_vertexCount];
+        int[] t_unityIndices = new int[m_csMesh.m_indexCount];
+        Vector3[] t_unityNormals = null;
+        Vector2[] t_unityUVs = null;
 
-        if (result == -2)
+        for (int i = 0; i < m_csMesh.m_vertexCount; i++)
         {
-            print("File path loaded but root node was not found");
+            t_unityVerts[i].x = m_csMesh.m_allVerticesPositions[i].x;
+            t_unityVerts[i].y = m_csMesh.m_allVerticesPositions[i].y;
+            t_unityVerts[i].z = m_csMesh.m_allVerticesPositions[i].z;
         }
 
-        if (result == -3)
+        m_unityMesh.vertices = t_unityVerts;
+
+        for (int i = 0; i < m_csMesh.m_indexCount; i++)
         {
-            print("well...");
+            t_unityIndices[i] = (int)m_csMesh.m_indices[i];
         }
 
-        // Returns false if the file was not loaded
-        return false;
+        m_unityMesh.triangles = t_unityIndices;
+
+        if (m_csMesh.m_allVerticesNormals != null)
+        {
+            t_unityNormals = new Vector3[m_csMesh.m_vertexCount];
+
+            for (int i = 0; i < m_csMesh.m_vertexCount; i++)
+            {
+                t_unityNormals[i].x = m_csMesh.m_allVerticesNormals[i].x;
+                t_unityNormals[i].y = m_csMesh.m_allVerticesNormals[i].y;
+                t_unityNormals[i].z = m_csMesh.m_allVerticesNormals[i].z;
+            }
+
+            m_unityMesh.normals = t_unityNormals;
+        }
+
+        if (m_csMesh.m_allVerticesUVs != null)
+        {
+            t_unityUVs = new Vector2[m_csMesh.m_vertexCount];
+
+            for (int i = 0; i < m_csMesh.m_vertexCount; i++)
+            {
+                t_unityUVs[i].x = m_csMesh.m_allVerticesUVs[i].x;
+                t_unityUVs[i].y = m_csMesh.m_allVerticesUVs[i].y;
+            }
+
+            m_unityMesh.uv = t_unityUVs;
+        }
+
+        m_meshFilter.mesh = m_unityMesh;
     }
 
     private static Texture2D LoadPNG(string _filePath)
@@ -225,6 +323,7 @@ public class UseFBXDLLHandler : MonoBehaviour
 
     private void OnDestroy()
     {
+        // Delete C++ handler which is unmanaged memory.
         DestroyFBXHandler(m_cppImportedFBXScene);
 
         m_cppImportedFBXScene = IntPtr.Zero;

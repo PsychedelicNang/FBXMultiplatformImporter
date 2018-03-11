@@ -37,17 +37,14 @@ int FBXHandler::LoadMeshFromFBXFile(const char* _filePath)
 	// Create an importer using the SDK manager.
 	FbxImporter* lImporter = FbxImporter::Create(lSdkManager, "");
 	
-	result = 1;
-
 	// Use the first argument as the filename for the importer.
 	if (!lImporter->Initialize(_filePath, -1, lSdkManager->GetIOSettings())) {
-		result = -1;
+		result = 0;
 		return result;
 	}
 
 	// Create a new scene so that it can be populated by the imported file.
 	FbxScene* lScene = FbxScene::Create(lSdkManager, "myScene");
-	result = -2;
 
 	// Import the contents of the file into the scene.
 	lImporter->Import(lScene);
@@ -58,7 +55,6 @@ int FBXHandler::LoadMeshFromFBXFile(const char* _filePath)
 	FbxNode* lRootNode = lScene->GetRootNode();
 	if (lRootNode)
 	{
-		result = -3;
 		for (int i = 0; i < lRootNode->GetChildCount(); i++)
 		{
 			FbxNode* tNode = lRootNode->GetChild(i);
@@ -191,6 +187,16 @@ int FBXHandler::LoadMeshFromFBXFile(const char* _filePath)
 				m_mesh->m_allVerticesPositions = new Vector3[mPolygonVertexCount];
 				m_mesh->m_indices = new unsigned[mPolygonCount * TRIANGLE_VERTEX_COUNT];
 
+				if (mHasNormal)
+				{
+					m_mesh->m_allVerticesNormals = new Vector3[mPolygonVertexCount];
+				}
+
+				if (mHasUV)
+				{
+					m_mesh->m_allVerticesUVs = new Vector2[mPolygonVertexCount];
+				}
+
 				const FbxVector4 * mControlPoints = theMesh->GetControlPoints();
 				FbxVector4 mCurrentVertex;
 				FbxVector4 mCurrentNormal;
@@ -234,23 +240,29 @@ int FBXHandler::LoadMeshFromFBXFile(const char* _filePath)
 							//currVert.position[2] = static_cast<float>(mCurrentVertex[2]);
 							//currVert.position[3] = 1;
 
-							/*if (mHasNormal)
+							if (mHasNormal)
 							{
 								theMesh->GetPolygonVertexNormal(mPolygonIndex, mVerticeIndex, mCurrentNormal);
 
-								currVert.normals[0] = static_cast<float>(mCurrentNormal[0]);
-								currVert.normals[1] = static_cast<float>(mCurrentNormal[1]);
-								currVert.normals[2] = static_cast<float>(mCurrentNormal[2]);
-								currVert.normals[3] = 1.f;
+								m_mesh->m_allVerticesNormals[mVertexCount].x = static_cast<float>(mCurrentNormal[0]);
+								m_mesh->m_allVerticesNormals[mVertexCount].y = static_cast<float>(mCurrentNormal[1]);
+								m_mesh->m_allVerticesNormals[mVertexCount].z = static_cast<float>(mCurrentNormal[2]);
+								//currVert.normals[0] = static_cast<float>(mCurrentNormal[0]);
+								//currVert.normals[1] = static_cast<float>(mCurrentNormal[1]);
+								//currVert.normals[2] = static_cast<float>(mCurrentNormal[2]);
+								//currVert.normals[3] = 1.f;
 							}
 
 							if (mHasUV)
 							{
 								bool lUnmappedUV;
 								theMesh->GetPolygonVertexUV(mPolygonIndex, mVerticeIndex, mUVName, mCurrentUV, lUnmappedUV);
-								currVert.uvs[0] = static_cast<float>(mCurrentUV[0]);
-								currVert.uvs[1] = static_cast<float>(mCurrentUV[1]);
-							}*/
+								
+								m_mesh->m_allVerticesUVs[mVertexCount].x = static_cast<float>(mCurrentUV[0]);
+								m_mesh->m_allVerticesUVs[mVertexCount].y = static_cast<float>(mCurrentUV[1]);
+								//currVert.uvs[0] = static_cast<float>(mCurrentUV[0]);
+								//currVert.uvs[1] = static_cast<float>(mCurrentUV[1]);
+							}
 							//meshInst.vertices.push_back(currVert);
 						}
 						++mVertexCount;
@@ -277,6 +289,8 @@ int FBXHandler::LoadMeshFromFBXFile(const char* _filePath)
 MeshComponentsAdvanced::Mesh::Mesh()
 {
 	m_allVerticesPositions = 0;
+	m_allVerticesNormals = 0;
+	m_allVerticesUVs = 0;
 	m_indices = 0;
 	m_vertexCount = 0;
 	m_indexCount = 0;
@@ -309,6 +323,18 @@ MeshComponentsAdvanced::Mesh::~Mesh()
 		m_allVerticesPositions = 0;
 	}
 
+	if (m_allVerticesNormals)
+	{
+		delete[] m_allVerticesNormals;
+		m_allVerticesNormals = 0;
+	}
+
+	if (m_allVerticesUVs)
+	{
+		delete[] m_allVerticesUVs;
+		m_allVerticesUVs = 0;
+	}
+
 	if (m_indices)
 	{
 		delete[] m_indices;
@@ -331,4 +357,16 @@ MeshComponentsAdvanced::Vector3::~Vector3()
 	x = 0.f;
 	y = 0.f;
 	z = 0.f;
+}
+
+MeshComponentsAdvanced::Vector2::Vector2()
+{
+	x = 0.f;
+	y = 0.f;
+}
+
+MeshComponentsAdvanced::Vector2::~Vector2()
+{
+	x = 0.f;
+	y = 0.f;
 }
