@@ -286,6 +286,264 @@ int FBXHandler::LoadMeshFromFBXFile(const char* _filePath)
 	return result;
 }
 
+int FBXHandler::LoadMaterialFromFBXFile(const char * _filePath)
+{
+	FbxManager* lSdkManager = FbxManager::Create();
+
+	FbxIOSettings *ios = FbxIOSettings::Create(lSdkManager, IOSROOT);
+	lSdkManager->SetIOSettings(ios);
+
+	FbxImporter* lImporter = FbxImporter::Create(lSdkManager, "");
+
+	if (!lImporter->Initialize(_filePath, -1, lSdkManager->GetIOSettings()))
+	{
+		return 0;
+	}
+
+	FbxScene* lScene = FbxScene::Create(lSdkManager, "myScene");
+	lImporter->Import(lScene);
+	lImporter->Destroy();
+
+	FbxNode* lRootNode = lScene->GetRootNode();
+	FbxNode* lNode = nullptr;
+	unsigned materialCount = 0;
+
+	if (lRootNode) {
+		for (int i = 0; i < lRootNode->GetChildCount(); i++) {
+			FbxNode* tNode = lRootNode->GetChild(i);
+			FbxGeometry* geometry = (FbxGeometry*)tNode->GetNodeAttribute();
+			if (geometry) {
+				lNode = geometry->GetNode();
+				if (lNode) {
+					materialCount = lScene->GetMaterialCount();
+				}
+			}
+		}
+	}
+
+	else
+	{
+		return -1;
+	}
+
+	if (materialCount == 0)
+	{
+		return -2;
+	}
+
+	m_mesh->m_materialCount = materialCount;
+	//m_materials.resize(materialCount);
+	m_mesh->m_materials = new Material*[materialCount];
+
+	for (unsigned i = 0; i < materialCount; i++)
+	{
+		m_mesh->m_materials[i] = new Material();
+
+		FbxSurfaceMaterial* currentMaterial = lScene->GetMaterial(i);
+		if (!currentMaterial) break;
+
+		if (currentMaterial->Is<FbxSurfacePhong>()) m_mesh->m_materials[i]->m_materialType = Material::MATERIALTYPE_PHONG;
+		else if (currentMaterial->Is<FbxSurfaceLambert>()) m_mesh->m_materials[i]->m_materialType = Material::MATERIALTYPE_LAMBERT;
+
+		/************* FbxString comparison returns 0 if the strings are equal *************/
+
+		FbxProperty lProperty = currentMaterial->GetFirstProperty();
+		while (lProperty.IsValid())
+		{
+			Material::PropertyData* currentProperty = 0;
+
+			FbxString fbxName = lProperty.GetName();
+
+			const char * cPtr = fbxName.Buffer();
+			std::string strName = std::string(cPtr);
+
+			if (currentMaterial->Is<FbxSurfacePhong>())
+			{
+				if ("SpecularColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SPECULAR;
+				}
+				else if ("SpecularFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SPECULAR;
+				}
+				else if ("Shininess" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SHININESS];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SHININESS;
+				}
+				else if ("ReflectionColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_REFLECTION;
+				}
+				else if ("ReflectionFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_REFLECTION;
+				}
+				else if ("EmissiveColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+				}
+				else if ("EmissiveFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+				}
+				else if ("AmbientColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+				}
+				else if ("AmbientFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+				}
+				else if ("DiffuseColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+				}
+				else if ("DiffuseFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+				}
+				else if ("Bump" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+				}
+				else if ("BumpFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+				}
+				else if ("NormalMap" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_NORMAL;
+				}
+				else if ("TransparentColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+				}
+				else if ("TransparencyFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+				}
+				else if ("DisplacementColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+				}
+				else if ("DisplacementFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+				}
+				else if ("VectorDisplacementColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+				}
+				else if ("VectorDisplacementFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+				}
+			}
+
+			else if (currentMaterial->Is<FbxSurfaceLambert>())
+			{
+				if ("EmissiveColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+				}
+				else if ("EmissiveFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+				}
+				else if ("AmbientColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+				}
+				else if ("AmbientFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+				}
+				else if ("DiffuseColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+				}
+				else if ("DiffuseFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+				}
+				else if ("Bump" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+				}
+				else if ("BumpFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+				}
+				else if ("NormalMap" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_NORMAL;
+				}
+				else if ("TransparentColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+				}
+				else if ("TransparencyFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+				}
+				else if ("DisplacementColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+				}
+				else if ("DisplacementFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+				}
+				else if ("VectorDisplacementColor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+				}
+				else if ("VectorDisplacementFactor" == strName) {
+					currentProperty = m_mesh->m_materials[i]->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+				}
+			}
+
+			if (currentProperty)
+			{
+				if (lProperty.GetPropertyDataType().GetType() == eFbxDouble3) {
+					FbxDouble3 val = lProperty.Get<FbxDouble3>();
+					currentProperty->m_dataColorValues.x = (float)val[0];
+					currentProperty->m_dataColorValues.y = (float)val[1];
+					currentProperty->m_dataColorValues.z = (float)val[2];
+				}
+				else if (lProperty.GetPropertyDataType().GetType() == eFbxDouble) {
+					currentProperty->m_dataColorValues.w = (float)lProperty.Get<FbxDouble>();
+				}
+
+				/*if (currentProperty->m_textureAbsoluteFilePath == nullptr && currentProperty->m_textureRelativeFileName == nullptr)
+				{
+					FbxFileTexture* lFileTexture = lProperty.GetSrcObject<FbxFileTexture>();
+					if (lFileTexture != nullptr)
+					{
+						const char * relativeFileName = lFileTexture->GetRelativeFileName();
+						const char * absoluteFileName = lFileTexture->GetFileName();
+
+						currentProperty->m_textureAbsoluteFilePath = new char[strlen(absoluteFileName) + 1];
+						currentProperty->m_textureRelativeFileName = new char[strlen(relativeFileName) + 1];
+
+						strncpy(currentProperty->m_textureAbsoluteFilePath, absoluteFileName, strlen(absoluteFileName) + 1);
+						strncpy(currentProperty->m_textureRelativeFileName, relativeFileName, strlen(relativeFileName) + 1);
+					}
+				}*/
+			}
+
+			lProperty = currentMaterial->GetNextProperty(lProperty);
+		}
+	}
+
+	// Destroy the SDK manager and all the other objects it was handling.
+	lSdkManager->Destroy();
+
+	return 1;
+}
+
 MeshComponentsAdvanced::Mesh::Mesh()
 {
 	m_allVerticesPositions = 0;
@@ -294,25 +552,8 @@ MeshComponentsAdvanced::Mesh::Mesh()
 	m_indices = 0;
 	m_vertexCount = 0;
 	m_indexCount = 0;
-
-	//m_vertexCount = 10;
-	//m_indexCount = m_vertexCount * 3;
-
-	//m_allVerticesPositions = new Vector3[m_vertexCount];
-
-	//for (unsigned i = 0; i < m_vertexCount; i++)
-	//{
-	//	m_allVerticesPositions[i].x = i / 5.2f;
-	//	m_allVerticesPositions[i].y = i / 5.2f;
-	//	m_allVerticesPositions[i].z = i / 5.2f;
-	//}
-	//
-	//m_indices = new unsigned[m_indexCount];
-
-	//for (unsigned i = 0; i < m_indexCount; i++)
-	//{
-	//	m_indices[i] = i;
-	//}
+	m_materials = { 0 };
+	m_materialCount = 0;
 }
 
 MeshComponentsAdvanced::Mesh::~Mesh()
@@ -343,6 +584,29 @@ MeshComponentsAdvanced::Mesh::~Mesh()
 
 	m_vertexCount = 0;
 	m_indexCount = 0;
+
+	for (int i = 0; i < m_materialCount; i++)
+	{
+		if (m_materials[i])
+		{
+			delete m_materials[i];
+			m_materials[i] = 0;
+		}
+	}
+
+	if (m_materials)
+	{
+		delete m_materials;
+		m_materials = 0;
+	}
+
+	//if (m_materials)
+	//{
+	//	delete[] m_materials;
+	//	m_materials = 0;
+	//}
+
+	m_materialCount = 0;
 }
 
 MeshComponentsAdvanced::Vector3::Vector3()
@@ -369,4 +633,76 @@ MeshComponentsAdvanced::Vector2::~Vector2()
 {
 	x = 0.f;
 	y = 0.f;
+}
+
+MeshComponentsAdvanced::Vector4::Vector4()
+{
+	x = 0.f;
+	y = 0.f;
+	z = 0.f;
+	w = 0.0f;
+}
+
+MeshComponentsAdvanced::Vector4::~Vector4()
+{
+	x = 0.f;
+	y = 0.f;
+	z = 0.f;
+	w = 0.0f;
+}
+
+MeshComponentsAdvanced::Material::PropertyData::PropertyData()
+{
+	m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
+	//m_textureRelativeFileName = 0;
+	//m_textureAbsoluteFilePath = 0;
+}
+
+MeshComponentsAdvanced::Material::PropertyData::~PropertyData()
+{
+	m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
+	//if (m_textureRelativeFileName)
+	//{
+	//	printf(m_textureRelativeFileName);
+	//	delete[] m_textureRelativeFileName;
+	//	m_textureRelativeFileName = 0;
+	//}
+	//if (m_textureAbsoluteFilePath)
+	//{
+	//	printf(m_textureAbsoluteFilePath);
+	//	delete[]m_textureAbsoluteFilePath;
+	//	m_textureAbsoluteFilePath = 0;
+	//}
+}
+
+MeshComponentsAdvanced::Material::Material()
+{
+	m_materialType = MaterialType::MATERIALTYPE_LAMBERT;
+	//m_materialProperties.resize(PropertyType::PROPERTYTYPE_COUNT);
+	m_materialProperties = new PropertyData*[PropertyType::PROPERTYTYPE_COUNT];
+	for (int i = 0; i < PropertyType::PROPERTYTYPE_COUNT; i++)
+	{
+		m_materialProperties[i] = new PropertyData();
+	}
+}
+
+MeshComponentsAdvanced::Material::~Material()
+{
+	m_materialType = MaterialType::MATERIALTYPE_LAMBERT;
+	for (int i = 0; i < PropertyType::PROPERTYTYPE_COUNT; i++)
+	{
+		if (m_materialProperties[i])
+		{
+			delete m_materialProperties[i];
+			m_materialProperties[i] = 0;
+		}
+	}
+
+	if (m_materialProperties)
+	{
+		delete m_materialProperties;
+		m_materialProperties = 0;
+	}
+
+	//m_materialProperties.clear();
 }

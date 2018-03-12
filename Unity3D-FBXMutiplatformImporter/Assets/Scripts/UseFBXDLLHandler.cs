@@ -9,16 +9,19 @@ public class UseFBXDLLHandler : MonoBehaviour
 {
     /***************** Import DLL Functions *****************/
     [DllImport("FBXImporterDLL_WINDOWS")]
-    static public extern IntPtr CreateFBXHandler();
+    static public extern IntPtr CPPDLLCreateFBXHandler();
 
     [DllImport("FBXImporterDLL_WINDOWS")]
-    static public extern void DestroyFBXHandler(IntPtr pClassNameObject);
+    static public extern void CPPDLLDestroyFBXHandler(IntPtr pClassNameObject);
 
     [DllImport("FBXImporterDLL_WINDOWS")]
-    static public extern void FillOutMesh(IntPtr pClassNameObject);
+    static public extern void CPPDLLFillOutMesh(IntPtr pClassNameObject);
 
     [DllImport("FBXImporterDLL_WINDOWS", CallingConvention = CallingConvention.Cdecl)]
-    static public extern int LoadMeshFromFBXFile(IntPtr pClassNameObject, string filePath);
+    static public extern int CPPDLLLoadMeshFromFBXFile(IntPtr pClassNameObject, string filePath);
+
+    [DllImport("FBXImporterDLL_WINDOWS", CallingConvention = CallingConvention.Cdecl)]
+    static public extern int CPPDLLLoadMaterialFromFBXFile(IntPtr pClassNameObject, string filePath);
     /***************** Import DLL Functions *****************/
 
 
@@ -34,6 +37,47 @@ public class UseFBXDLLHandler : MonoBehaviour
 
 
     /***************** Class Definitions *****************/
+    public class CSMaterial
+    {
+        public CSMaterial()
+        {
+            m_materialProperties = null;
+        }
+
+        public enum PropertyType
+        {
+            PROPERTYTYPE_EMISSIVE = 0,
+            PROPERTYTYPE_AMBIENT,
+            PROPERTYTYPE_DIFFUSE,
+            PROPERTYTYPE_NORMAL,
+            PROPERTYTYPE_BUMP,
+            PROPERTYTYPE_TRANSPARENCY,
+            PROPERTYTYPE_DISPLACEMENT,
+            PROPERTYTYPE_VECTOR_DISPLACEMENT,
+            PROPERTYTYPE_SPECULAR,
+            PROPERTYTYPE_SHININESS,
+            PROPERTYTYPE_REFLECTION,
+            PROPERTYTYPE_COUNT
+        };
+
+        public enum MaterialType
+        {
+            MATERIALTYPE_PHONG = 0,
+            MATERIALTYPE_LAMBERT
+        };
+
+        public class PropertyData
+        {
+            PropertyType m_propertyType;
+            //string m_textureRelativeFileName;
+            //string m_textureAbsoluteFilePath;
+            CSMesh.Vector4 m_dataColorValues;
+        };
+
+        public MaterialType m_materialType;
+        public PropertyData[] m_materialProperties;
+    }
+
     public class CSMesh
     {
         public CSMesh()
@@ -42,6 +86,8 @@ public class UseFBXDLLHandler : MonoBehaviour
             m_allVerticesNormals = null;
             m_allVerticesUVs = null;
             m_indices = null;
+            m_materials = null;
+            //m_textures = null;
         }
         public struct Vector2
         {
@@ -56,6 +102,14 @@ public class UseFBXDLLHandler : MonoBehaviour
             public float z;
         }
 
+        public struct Vector4
+        {
+            public float x;
+            public float y;
+            public float z;
+            public float w;
+        }
+
         public Vector3[] m_allVerticesPositions;
         public Vector3[] m_allVerticesNormals;
         public Vector2[] m_allVerticesUVs;
@@ -65,7 +119,9 @@ public class UseFBXDLLHandler : MonoBehaviour
         public uint m_vertexCount;
         public uint m_indexCount;
 
-        public Texture2D m_texture;
+        public CSMaterial[] m_materials;
+
+        //public Texture2D[] m_textures;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -80,6 +136,7 @@ public class UseFBXDLLHandler : MonoBehaviour
                 m_indices               = IntPtr.Zero;
                 m_normals               = IntPtr.Zero;
                 m_uvs                   = IntPtr.Zero;
+                m_materials             = IntPtr.Zero;
             }
 
             public IntPtr m_allVerticesPositions;
@@ -88,6 +145,8 @@ public class UseFBXDLLHandler : MonoBehaviour
             public IntPtr m_indices;
             public uint m_vertexCount;
             public uint m_indexCount;
+            public IntPtr m_materials;
+            public uint m_materialCount;
         }
 
         public CSImportedFBXScene()
@@ -117,18 +176,36 @@ public class UseFBXDLLHandler : MonoBehaviour
         m_csImportedFBXScene = new CSImportedFBXScene();
 
         // C++ handler which is unmanaged memory (we need to delete)
-        m_cppImportedFBXScene = CreateFBXHandler();
+        m_cppImportedFBXScene = CPPDLLCreateFBXHandler();
 
-        int result = LoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+        int result = CSLoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
 
         if (1 == result)
         {
             // If the file loaded a mesh successfully, let's fill out the mesh component of this game object.
             FillOutGameObjectMesh();
 
-            //m_csMesh.m_texture = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Base_Color.png");
-            //
-            //m_meshRenderer.material.mainTexture = m_csMesh.m_texture;
+            //if (m_csMesh.m_allVerticesUVs != null)
+            //{
+               // int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+                //m_csMesh.m_textures = new Texture2D[4];
+                //m_csMesh.m_textures[0] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Base_Color.png");
+                //m_csMesh.m_textures[1] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Emissive.png");
+                //m_csMesh.m_textures[2] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Metallic.png");
+                //m_csMesh.m_textures[3] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Normal.png");
+
+                //m_meshRenderer.material.EnableKeyword("_MainTex");
+                //m_meshRenderer.material.SetTexture("_MainTex", m_csMesh.m_textures[0]);
+
+                //m_meshRenderer.material.EnableKeyword("_EMISSION");
+                //m_meshRenderer.material.SetTexture("_EMISSION", m_csMesh.m_textures[1]);
+
+                //m_meshRenderer.material.EnableKeyword("_METALLICGLOSSMAP");
+                //m_meshRenderer.material.SetTexture("_METALLICGLOSSMAP", m_csMesh.m_textures[2]);
+
+                //m_meshRenderer.material.EnableKeyword("_NORMALMAP");
+                //m_meshRenderer.material.SetTexture("_NORMALMAP", m_csMesh.m_textures[3]);
+            //}
         }
 
         // If the file did not load, lets check if there is a specific error message we can display to the user.
@@ -148,9 +225,10 @@ public class UseFBXDLLHandler : MonoBehaviour
         m_objectTransform.localScale = new Vector3(0.1f, 0.1f, 0.1f);   // For testing
     }
 
-    private int LoadFBXFile(string _fbxFilePath)
+    private int CSLoadFBXFile(string _fbxFilePath)
     {
-        int result = LoadMeshFromFBXFile(m_cppImportedFBXScene, _fbxFilePath);
+        int result = CPPDLLLoadMeshFromFBXFile(m_cppImportedFBXScene, _fbxFilePath);
+        int result2 = CPPDLLLoadMaterialFromFBXFile(m_cppImportedFBXScene, _fbxFilePath);
 
         if (result == 0)
         {
@@ -234,6 +312,8 @@ public class UseFBXDLLHandler : MonoBehaviour
                             m_csMesh.m_allVerticesUVs[i].x = uvs[i].x;
                             m_csMesh.m_allVerticesUVs[i].y = uvs[i].y;
                         }
+
+                        //CSMaterial* materials = (CSMaterial*)m_csImportedFBXScene.m_mesh.m_materials.ToPointer();
                     }
                     else
                     {
@@ -252,6 +332,13 @@ public class UseFBXDLLHandler : MonoBehaviour
         {
             return result;
         }
+    }
+
+    private int CSLoadMaterialFromFBXFile(string _filePath)
+    {
+        int result = CPPDLLLoadMaterialFromFBXFile(m_cppImportedFBXScene, _filePath);
+
+        return result;
     }
 
     private void FillOutGameObjectMesh()
@@ -315,16 +402,17 @@ public class UseFBXDLLHandler : MonoBehaviour
         if (File.Exists(_filePath))
         {
             fileData = File.ReadAllBytes(_filePath);
-            tex = new Texture2D(2048, 1024);
-            tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
+            tex = new Texture2D(1, 1);
+            tex.LoadImage(fileData); // LoadImage() auto resizes the texture dimensions.
         }
+
         return tex;
     }
 
     private void OnDestroy()
     {
         // Delete C++ handler which is unmanaged memory.
-        DestroyFBXHandler(m_cppImportedFBXScene);
+        CPPDLLDestroyFBXHandler(m_cppImportedFBXScene);
 
         m_cppImportedFBXScene = IntPtr.Zero;
     }
