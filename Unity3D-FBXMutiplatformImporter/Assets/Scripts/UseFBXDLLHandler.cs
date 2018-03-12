@@ -37,13 +37,8 @@ public class UseFBXDLLHandler : MonoBehaviour
 
 
     /***************** Class Definitions *****************/
-    public class CSMaterial
+    public struct CSMaterial
     {
-        public CSMaterial()
-        {
-            m_materialProperties = null;
-        }
-
         public enum PropertyType
         {
             PROPERTYTYPE_EMISSIVE = 0,
@@ -66,7 +61,7 @@ public class UseFBXDLLHandler : MonoBehaviour
             MATERIALTYPE_LAMBERT
         };
 
-        public class PropertyData
+        public struct PropertyData
         {
             PropertyType m_propertyType;
             //string m_textureRelativeFileName;
@@ -75,7 +70,7 @@ public class UseFBXDLLHandler : MonoBehaviour
         };
 
         public MaterialType m_materialType;
-        public PropertyData[] m_materialProperties;
+        public PropertyData m_materialProperties;
     }
 
     public class CSMesh
@@ -313,8 +308,8 @@ public class UseFBXDLLHandler : MonoBehaviour
                             m_csMesh.m_allVerticesUVs[i].y = uvs[i].y;
                         }
 
-                        //CSMaterial* materials = (CSMaterial*)m_csImportedFBXScene.m_mesh.m_materials.ToPointer();
-                    }
+                        CSMaterial* mats = (CSMaterial*)m_csImportedFBXScene.m_mesh.m_materials.ToPointer();
+                        }
                     else
                     {
                         print("This mesh did not have UVS");
