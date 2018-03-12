@@ -70,7 +70,7 @@ public class UseFBXDLLHandler : MonoBehaviour
         };
 
         public MaterialType m_materialType;
-        public PropertyData m_materialProperties;
+        public PropertyData[] m_materialProperties;
     }
 
     public class CSMesh
@@ -182,24 +182,24 @@ public class UseFBXDLLHandler : MonoBehaviour
 
             //if (m_csMesh.m_allVerticesUVs != null)
             //{
-               // int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
-                //m_csMesh.m_textures = new Texture2D[4];
-                //m_csMesh.m_textures[0] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Base_Color.png");
-                //m_csMesh.m_textures[1] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Emissive.png");
-                //m_csMesh.m_textures[2] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Metallic.png");
-                //m_csMesh.m_textures[3] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Normal.png");
+            //   // int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+            //    m_csMesh.m_textures = new Texture2D[4];
+            //    m_csMesh.m_textures[0] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Base_Color.png");
+            //    m_csMesh.m_textures[1] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Emissive.png");
+            //    m_csMesh.m_textures[2] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Metallic.png");
+            //    m_csMesh.m_textures[3] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Normal.png");
 
-                //m_meshRenderer.material.EnableKeyword("_MainTex");
-                //m_meshRenderer.material.SetTexture("_MainTex", m_csMesh.m_textures[0]);
+            //    m_meshRenderer.material.EnableKeyword("_MainTex");
+            //    m_meshRenderer.material.SetTexture("_MainTex", m_csMesh.m_textures[0]);
 
-                //m_meshRenderer.material.EnableKeyword("_EMISSION");
-                //m_meshRenderer.material.SetTexture("_EMISSION", m_csMesh.m_textures[1]);
+            //    m_meshRenderer.material.EnableKeyword("_EMISSION");
+            //    m_meshRenderer.material.SetTexture("_EMISSION", m_csMesh.m_textures[1]);
 
-                //m_meshRenderer.material.EnableKeyword("_METALLICGLOSSMAP");
-                //m_meshRenderer.material.SetTexture("_METALLICGLOSSMAP", m_csMesh.m_textures[2]);
+            //    m_meshRenderer.material.EnableKeyword("_METALLICGLOSSMAP");
+            //    m_meshRenderer.material.SetTexture("_METALLICGLOSSMAP", m_csMesh.m_textures[2]);
 
-                //m_meshRenderer.material.EnableKeyword("_NORMALMAP");
-                //m_meshRenderer.material.SetTexture("_NORMALMAP", m_csMesh.m_textures[3]);
+            //    m_meshRenderer.material.EnableKeyword("_NORMALMAP");
+            //    m_meshRenderer.material.SetTexture("_NORMALMAP", m_csMesh.m_textures[3]);
             //}
         }
 
@@ -308,8 +308,8 @@ public class UseFBXDLLHandler : MonoBehaviour
                             m_csMesh.m_allVerticesUVs[i].y = uvs[i].y;
                         }
 
-                        CSMaterial* mats = (CSMaterial*)m_csImportedFBXScene.m_mesh.m_materials.ToPointer();
-                        }
+                        //CSMaterial** materials = (CSMaterial**)m_csImportedFBXScene.m_mesh.m_materials.ToPointer();
+                    }
                     else
                     {
                         print("This mesh did not have UVS");
