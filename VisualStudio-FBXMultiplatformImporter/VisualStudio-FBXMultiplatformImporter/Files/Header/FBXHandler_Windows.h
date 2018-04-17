@@ -63,8 +63,8 @@ namespace MeshComponentsAdvanced {
 			PropertyData();
 			~PropertyData();
 			PropertyType	m_propertyType;
-			//char*			m_textureRelativeFileName;
-			//char*			m_textureAbsoluteFilePath;
+			char*			m_textureRelativeFileName;
+			char*			m_textureAbsoluteFilePath;
 			Vector4			m_dataColorValues;
 		};
 

@@ -65,8 +65,8 @@ public class UseFBXDLLHandler : MonoBehaviour
         public struct PropertyData
         {
             public PropertyType m_propertyType;
-            //public IntPtr m_textureRelativeFileName;
-            //public IntPtr m_textureAbsoluteFilePath;
+            public IntPtr m_textureRelativeFileName;
+            public IntPtr m_textureAbsoluteFilePath;
             public CSMesh.Vector4 m_dataColorValues;
         };
 
@@ -80,8 +80,10 @@ public class UseFBXDLLHandler : MonoBehaviour
         public struct PropertyData
         {
             public PropertyType m_propertyType;
-            //public string m_textureRelativeFileName;
-            //public string m_textureAbsoluteFilePath;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string m_textureRelativeFileName;
+            [MarshalAs(UnmanagedType.LPStr)]
+            public string m_textureAbsoluteFilePath;
             public CSMesh.Vector4 m_dataColorValues;
         };
 
@@ -329,13 +331,18 @@ public class UseFBXDLLHandler : MonoBehaviour
                                 for (int j = 0; j < (int)PropertyType.PROPERTYTYPE_COUNT; j++)
                                 {
                                     CPPMaterial.PropertyData** propertyData = (CPPMaterial.PropertyData**)materials[i]->m_materialProperties.ToPointer();
-                                    PropertyType type = propertyData[j]->m_propertyType;
-                                    CSMesh.Vector4 data = propertyData[j]->m_dataColorValues;
                                     m_csMesh.m_materials[i].m_materialProperties[j].m_propertyType = propertyData[j]->m_propertyType;
+                                    m_csMesh.m_materials[i].m_materialProperties[j].m_textureRelativeFileName = Marshal.PtrToStringAnsi(propertyData[j]->m_textureRelativeFileName);
+                                    m_csMesh.m_materials[i].m_materialProperties[j].m_textureAbsoluteFilePath = Marshal.PtrToStringAnsi(propertyData[j]->m_textureAbsoluteFilePath);
                                     m_csMesh.m_materials[i].m_materialProperties[j].m_dataColorValues = propertyData[j]->m_dataColorValues;
                                 }
                             }
                         }
+
+                        if (materialCount == 1)
+                            print("This mesh had 1 material.");
+                        else
+                            print("This mesh had " + materialCount + " materials.");
                     }
                     else
                     {

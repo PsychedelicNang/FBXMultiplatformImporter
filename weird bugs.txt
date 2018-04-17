@@ -1,0 +1,4 @@
+1) error C2903: 'GetPropertyValue': symbol is neither a class template nor a function template
+   - The solution was to switch Conformance mode to NO in Configuration Properties/ C/C++/ Language. 
+   - https://stackoverflow.com/questions/49186336/compile-error-when-building-fbxsdk-headers-in-visual-studios
+

@@ -344,9 +344,8 @@ int FBXHandler::LoadMaterialFromFBXFile(const char * _filePath)
 
 		if (currentMaterial->Is<FbxSurfacePhong>()) m_mesh->m_materials[i]->m_materialType = Material::MATERIALTYPE_PHONG;
 		else if (currentMaterial->Is<FbxSurfaceLambert>()) m_mesh->m_materials[i]->m_materialType = Material::MATERIALTYPE_LAMBERT;
-
+		
 		/************* FbxString comparison returns 0 if the strings are equal *************/
-
 		FbxProperty lProperty = currentMaterial->GetFirstProperty();
 		while (lProperty.IsValid())
 		{
@@ -517,7 +516,7 @@ int FBXHandler::LoadMaterialFromFBXFile(const char * _filePath)
 					currentProperty->m_dataColorValues.w = (float)lProperty.Get<FbxDouble>();
 				}
 
-				/*if (currentProperty->m_textureAbsoluteFilePath == nullptr && currentProperty->m_textureRelativeFileName == nullptr)
+				if (currentProperty->m_textureAbsoluteFilePath == nullptr && currentProperty->m_textureRelativeFileName == nullptr)
 				{
 					FbxFileTexture* lFileTexture = lProperty.GetSrcObject<FbxFileTexture>();
 					if (lFileTexture != nullptr)
@@ -531,7 +530,7 @@ int FBXHandler::LoadMaterialFromFBXFile(const char * _filePath)
 						strncpy(currentProperty->m_textureAbsoluteFilePath, absoluteFileName, strlen(absoluteFileName) + 1);
 						strncpy(currentProperty->m_textureRelativeFileName, relativeFileName, strlen(relativeFileName) + 1);
 					}
-				}*/
+				}
 			}
 
 			lProperty = currentMaterial->GetNextProperty(lProperty);
@@ -585,7 +584,7 @@ MeshComponentsAdvanced::Mesh::~Mesh()
 	m_vertexCount = 0;
 	m_indexCount = 0;
 
-	for (int i = 0; i < m_materialCount; i++)
+	for (int i = 0; i < (int)m_materialCount; i++)
 	{
 		if (m_materials[i])
 		{
@@ -654,25 +653,25 @@ MeshComponentsAdvanced::Vector4::~Vector4()
 MeshComponentsAdvanced::Material::PropertyData::PropertyData()
 {
 	m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
-	//m_textureRelativeFileName = 0;
-	//m_textureAbsoluteFilePath = 0;
+	m_textureRelativeFileName = 0;
+	m_textureAbsoluteFilePath = 0;
 }
 
 MeshComponentsAdvanced::Material::PropertyData::~PropertyData()
 {
 	m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
-	//if (m_textureRelativeFileName)
-	//{
-	//	printf(m_textureRelativeFileName);
-	//	delete[] m_textureRelativeFileName;
-	//	m_textureRelativeFileName = 0;
-	//}
-	//if (m_textureAbsoluteFilePath)
-	//{
-	//	printf(m_textureAbsoluteFilePath);
-	//	delete[]m_textureAbsoluteFilePath;
-	//	m_textureAbsoluteFilePath = 0;
-	//}
+	if (m_textureRelativeFileName)
+	{
+		printf(m_textureRelativeFileName);
+		delete[] m_textureRelativeFileName;
+		m_textureRelativeFileName = 0;
+	}
+	if (m_textureAbsoluteFilePath)
+	{
+		printf(m_textureAbsoluteFilePath);
+		delete[]m_textureAbsoluteFilePath;
+		m_textureAbsoluteFilePath = 0;
+	}
 }
 
 MeshComponentsAdvanced::Material::Material()
