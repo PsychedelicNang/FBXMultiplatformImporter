@@ -37,59 +37,70 @@ public class UseFBXDLLHandler : MonoBehaviour
 
 
     /***************** Class Definitions *****************/
-    public struct CSMaterial
+    public enum PropertyType
     {
-        public enum PropertyType
-        {
-            PROPERTYTYPE_EMISSIVE = 0,
-            PROPERTYTYPE_AMBIENT,
-            PROPERTYTYPE_DIFFUSE,
-            PROPERTYTYPE_NORMAL,
-            PROPERTYTYPE_BUMP,
-            PROPERTYTYPE_TRANSPARENCY,
-            PROPERTYTYPE_DISPLACEMENT,
-            PROPERTYTYPE_VECTOR_DISPLACEMENT,
-            PROPERTYTYPE_SPECULAR,
-            PROPERTYTYPE_SHININESS,
-            PROPERTYTYPE_REFLECTION,
-            PROPERTYTYPE_COUNT
-        };
+        PROPERTYTYPE_EMISSIVE = 0,
+        PROPERTYTYPE_AMBIENT,
+        PROPERTYTYPE_DIFFUSE,
+        PROPERTYTYPE_NORMAL,
+        PROPERTYTYPE_BUMP,
+        PROPERTYTYPE_TRANSPARENCY,
+        PROPERTYTYPE_DISPLACEMENT,
+        PROPERTYTYPE_VECTOR_DISPLACEMENT,
+        PROPERTYTYPE_SPECULAR,
+        PROPERTYTYPE_SHININESS,
+        PROPERTYTYPE_REFLECTION,
+        PROPERTYTYPE_COUNT
+    };
 
-        public enum MaterialType
-        {
-            MATERIALTYPE_PHONG = 0,
-            MATERIALTYPE_LAMBERT
-        };
+    public enum MaterialType
+    {
+        MATERIALTYPE_PHONG = 0,
+        MATERIALTYPE_LAMBERT
+    };
 
+    public struct CPPMaterial
+    {
+        [StructLayout(LayoutKind.Sequential)]
         public struct PropertyData
         {
-            PropertyType m_propertyType;
-            //string m_textureRelativeFileName;
-            //string m_textureAbsoluteFilePath;
-            CSMesh.Vector4 m_dataColorValues;
+            public PropertyType m_propertyType;
+            //public IntPtr m_textureRelativeFileName;
+            //public IntPtr m_textureAbsoluteFilePath;
+            public CSMesh.Vector4 m_dataColorValues;
         };
 
         public MaterialType m_materialType;
+        public IntPtr m_materialProperties;
+    }
+
+    public struct CSMaterial
+    {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct PropertyData
+        {
+            public PropertyType m_propertyType;
+            //public string m_textureRelativeFileName;
+            //public string m_textureAbsoluteFilePath;
+            public CSMesh.Vector4 m_dataColorValues;
+        };
+
+        public MaterialType m_materialType;
+        [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct)]
         public PropertyData[] m_materialProperties;
     }
 
-    public class CSMesh
+    [StructLayout(LayoutKind.Sequential)]
+    public struct CSMesh
     {
-        public CSMesh()
-        {
-            m_allVerticesPositions = null;
-            m_allVerticesNormals = null;
-            m_allVerticesUVs = null;
-            m_indices = null;
-            m_materials = null;
-            //m_textures = null;
-        }
+        [StructLayout(LayoutKind.Sequential)]
         public struct Vector2
         {
             public float x;
             public float y;
         }
         
+        [StructLayout(LayoutKind.Sequential)]
         public struct Vector3
         {
             public float x;
@@ -97,6 +108,7 @@ public class UseFBXDLLHandler : MonoBehaviour
             public float z;
         }
 
+    [StructLayout(LayoutKind.Sequential)]
         public struct Vector4
         {
             public float x;
@@ -114,26 +126,20 @@ public class UseFBXDLLHandler : MonoBehaviour
         public uint m_vertexCount;
         public uint m_indexCount;
 
+        [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
         public CSMaterial[] m_materials;
 
-        //public Texture2D[] m_textures;
+        public Texture2D[] m_textures;
+
+        public uint m_materialCount;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public class CSImportedFBXScene
     {
         [StructLayout(LayoutKind.Sequential)]
-        public class CPPMesh
+        public struct CPPMesh
         {
-            public CPPMesh()
-            {
-                m_allVerticesPositions  = IntPtr.Zero;
-                m_indices               = IntPtr.Zero;
-                m_normals               = IntPtr.Zero;
-                m_uvs                   = IntPtr.Zero;
-                m_materials             = IntPtr.Zero;
-            }
-
             public IntPtr m_allVerticesPositions;
             public IntPtr m_normals;
             public IntPtr m_uvs;
@@ -180,27 +186,27 @@ public class UseFBXDLLHandler : MonoBehaviour
             // If the file loaded a mesh successfully, let's fill out the mesh component of this game object.
             FillOutGameObjectMesh();
 
-            //if (m_csMesh.m_allVerticesUVs != null)
-            //{
-            //   // int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
-            //    m_csMesh.m_textures = new Texture2D[4];
-            //    m_csMesh.m_textures[0] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Base_Color.png");
-            //    m_csMesh.m_textures[1] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Emissive.png");
-            //    m_csMesh.m_textures[2] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Metallic.png");
-            //    m_csMesh.m_textures[3] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Normal.png");
+            if (m_csMesh.m_allVerticesUVs != null)
+            {
+                int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+                //m_csMesh.m_textures = new Texture2D[4];
+                //m_csMesh.m_textures[0] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Base_Color.png");
+                //m_csMesh.m_textures[1] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Emissive.png");
+                //m_csMesh.m_textures[2] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Metallic.png");
+                //m_csMesh.m_textures[3] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Normal.png");
 
-            //    m_meshRenderer.material.EnableKeyword("_MainTex");
-            //    m_meshRenderer.material.SetTexture("_MainTex", m_csMesh.m_textures[0]);
+                //m_meshRenderer.material.EnableKeyword("_MainTex");
+                //m_meshRenderer.material.SetTexture("_MainTex", m_csMesh.m_textures[0]);
 
-            //    m_meshRenderer.material.EnableKeyword("_EMISSION");
-            //    m_meshRenderer.material.SetTexture("_EMISSION", m_csMesh.m_textures[1]);
+                //m_meshRenderer.material.EnableKeyword("_EMISSION");
+                //m_meshRenderer.material.SetTexture("_EMISSION", m_csMesh.m_textures[1]);
 
-            //    m_meshRenderer.material.EnableKeyword("_METALLICGLOSSMAP");
-            //    m_meshRenderer.material.SetTexture("_METALLICGLOSSMAP", m_csMesh.m_textures[2]);
+                //m_meshRenderer.material.EnableKeyword("_METALLICGLOSSMAP");
+                //m_meshRenderer.material.SetTexture("_METALLICGLOSSMAP", m_csMesh.m_textures[2]);
 
-            //    m_meshRenderer.material.EnableKeyword("_NORMALMAP");
-            //    m_meshRenderer.material.SetTexture("_NORMALMAP", m_csMesh.m_textures[3]);
-            //}
+                //m_meshRenderer.material.EnableKeyword("_NORMALMAP");
+                //m_meshRenderer.material.SetTexture("_NORMALMAP", m_csMesh.m_textures[3]);
+            }
         }
 
         // If the file did not load, lets check if there is a specific error message we can display to the user.
@@ -222,6 +228,7 @@ public class UseFBXDLLHandler : MonoBehaviour
 
     private int CSLoadFBXFile(string _fbxFilePath)
     {
+
         int result = CPPDLLLoadMeshFromFBXFile(m_cppImportedFBXScene, _fbxFilePath);
         int result2 = CPPDLLLoadMaterialFromFBXFile(m_cppImportedFBXScene, _fbxFilePath);
 
@@ -239,9 +246,11 @@ public class UseFBXDLLHandler : MonoBehaviour
 
             uint vertexCount = m_csImportedFBXScene.m_mesh.m_vertexCount;
             uint indexCount = m_csImportedFBXScene.m_mesh.m_indexCount;
+            uint materialCount = m_csImportedFBXScene.m_mesh.m_materialCount;
 
             m_csMesh.m_vertexCount = vertexCount;
             m_csMesh.m_indexCount = indexCount;
+            m_csMesh.m_materialCount = materialCount;
 
             if (vertexCount > 0)
             {
@@ -308,7 +317,25 @@ public class UseFBXDLLHandler : MonoBehaviour
                             m_csMesh.m_allVerticesUVs[i].y = uvs[i].y;
                         }
 
-                        //CSMaterial** materials = (CSMaterial**)m_csImportedFBXScene.m_mesh.m_materials.ToPointer();
+                        if (materialCount > 0)
+                        {
+                            m_csMesh.m_materials = new CSMaterial[materialCount];
+                            CPPMaterial** materials = (CPPMaterial**)m_csImportedFBXScene.m_mesh.m_materials.ToPointer();
+
+                            for (int i = 0; i < materialCount; i++)
+                            {
+                                m_csMesh.m_materials[i].m_materialType = materials[i]->m_materialType;
+                                m_csMesh.m_materials[i].m_materialProperties = new CSMaterial.PropertyData[(int)PropertyType.PROPERTYTYPE_COUNT];
+                                for (int j = 0; j < (int)PropertyType.PROPERTYTYPE_COUNT; j++)
+                                {
+                                    CPPMaterial.PropertyData** propertyData = (CPPMaterial.PropertyData**)materials[i]->m_materialProperties.ToPointer();
+                                    PropertyType type = propertyData[j]->m_propertyType;
+                                    CSMesh.Vector4 data = propertyData[j]->m_dataColorValues;
+                                    m_csMesh.m_materials[i].m_materialProperties[j].m_propertyType = propertyData[j]->m_propertyType;
+                                    m_csMesh.m_materials[i].m_materialProperties[j].m_dataColorValues = propertyData[j]->m_dataColorValues;
+                                }
+                            }
+                        }
                     }
                     else
                     {
