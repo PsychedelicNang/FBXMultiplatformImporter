@@ -175,6 +175,7 @@ public class UseFBXDLLHandler : MonoBehaviour
         m_meshRenderer = gameObject.AddComponent<MeshRenderer>();
         m_objectTransform = gameObject.GetComponent<Transform>();
 
+
         m_csMesh = new CSMesh();
 
         m_csImportedFBXScene = new CSImportedFBXScene();
@@ -183,7 +184,18 @@ public class UseFBXDLLHandler : MonoBehaviour
         m_cppImportedFBXScene = CPPDLLCreateFBXHandler();
 
         //int result = CSLoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+
+        DateTime m_timeBefore = DateTime.Now;
         int result = CSLoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksWeapons\\Glossy\\SM_Pistol.fbx");
+        DateTime m_timeAfter = DateTime.Now;
+
+        TimeSpan m_duration = m_timeAfter - m_timeBefore;
+
+        if (m_duration.Seconds > 0)
+            print("The mesh was loaded in: " + m_duration.Seconds + " s");
+        else
+            print("The mesh was loaded in: " + m_duration.Milliseconds + " ms");
+
 
         if (1 == result)
         {
@@ -192,8 +204,18 @@ public class UseFBXDLLHandler : MonoBehaviour
 
             if (m_csMesh.m_allVerticesUVs != null)
             {
+                DateTime m_timeBefore2 = DateTime.Now;
                 //int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
-                 int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksWeapons\\Glossy\\SM_Pistol.fbx");
+                int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksWeapons\\Glossy\\SM_Pistol.fbx");
+
+                DateTime m_timeAfter2 = DateTime.Now;
+
+                TimeSpan m_duration2 = m_timeAfter2 - m_timeBefore2;
+
+                if (m_duration.Seconds > 0)
+                    print("The material was loaded in: " + m_duration2.Seconds + " s");
+                else
+                    print("The material was loaded in: " + m_duration2.Milliseconds + " ms");
             }
         }
 
