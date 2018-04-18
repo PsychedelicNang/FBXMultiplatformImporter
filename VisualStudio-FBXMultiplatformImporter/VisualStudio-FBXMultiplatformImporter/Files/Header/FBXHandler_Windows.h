@@ -71,6 +71,7 @@ namespace MeshComponentsAdvanced {
 		MaterialType	m_materialType;
 		//std::vector<PropertyData*>	m_materialProperties;
 		PropertyData**	m_materialProperties;
+		unsigned		m_textureCount;
 	};
 
 	struct Mesh {

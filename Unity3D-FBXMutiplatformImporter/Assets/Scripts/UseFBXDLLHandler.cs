@@ -72,6 +72,7 @@ public class UseFBXDLLHandler : MonoBehaviour
 
         public MaterialType m_materialType;
         public IntPtr m_materialProperties;
+        public uint m_textureCount;
     }
 
     public struct CSMaterial
@@ -90,6 +91,8 @@ public class UseFBXDLLHandler : MonoBehaviour
         public MaterialType m_materialType;
         [MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct)]
         public PropertyData[] m_materialProperties;
+        public Texture2D[] m_textures;
+        public uint m_textureCount;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -130,8 +133,6 @@ public class UseFBXDLLHandler : MonoBehaviour
 
         [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.Struct)]
         public CSMaterial[] m_materials;
-
-        public Texture2D[] m_textures;
 
         public uint m_materialCount;
     }
@@ -181,7 +182,8 @@ public class UseFBXDLLHandler : MonoBehaviour
         // C++ handler which is unmanaged memory (we need to delete)
         m_cppImportedFBXScene = CPPDLLCreateFBXHandler();
 
-        int result = CSLoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+        //int result = CSLoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+        int result = CSLoadFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksWeapons\\Glossy\\SM_Pistol.fbx");
 
         if (1 == result)
         {
@@ -190,24 +192,8 @@ public class UseFBXDLLHandler : MonoBehaviour
 
             if (m_csMesh.m_allVerticesUVs != null)
             {
-                int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
-                //m_csMesh.m_textures = new Texture2D[4];
-                //m_csMesh.m_textures[0] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Base_Color.png");
-                //m_csMesh.m_textures[1] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Emissive.png");
-                //m_csMesh.m_textures[2] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Metallic.png");
-                //m_csMesh.m_textures[3] = LoadPNG("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbm\\SciFi_Character_Normal.png");
-
-                //m_meshRenderer.material.EnableKeyword("_MainTex");
-                //m_meshRenderer.material.SetTexture("_MainTex", m_csMesh.m_textures[0]);
-
-                //m_meshRenderer.material.EnableKeyword("_EMISSION");
-                //m_meshRenderer.material.SetTexture("_EMISSION", m_csMesh.m_textures[1]);
-
-                //m_meshRenderer.material.EnableKeyword("_METALLICGLOSSMAP");
-                //m_meshRenderer.material.SetTexture("_METALLICGLOSSMAP", m_csMesh.m_textures[2]);
-
-                //m_meshRenderer.material.EnableKeyword("_NORMALMAP");
-                //m_meshRenderer.material.SetTexture("_NORMALMAP", m_csMesh.m_textures[3]);
+                //int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\NewSciFiCharacter.fbx");
+                 int result2 = CSLoadMaterialFromFBXFile("C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksWeapons\\Glossy\\SM_Pistol.fbx");
             }
         }
 
@@ -224,8 +210,14 @@ public class UseFBXDLLHandler : MonoBehaviour
                 break;
         }
 
-        m_objectTransform.Translate(new Vector3(0.0f, -10.0f));         // For testing
-        m_objectTransform.localScale = new Vector3(0.1f, 0.1f, 0.1f);   // For testing
+
+        //m_objectTransform.Translate(new Vector3(0.0f, -10.0f));         // For testing
+        //m_objectTransform.localScale = new Vector3(0.1f, 0.1f, 0.1f);   // For testing
+
+        float scaleAmount = 0.5f;
+        m_objectTransform.Translate(new Vector3(0.0f, 0.0f));         // For testing
+        m_objectTransform.localScale = new Vector3(scaleAmount, scaleAmount, scaleAmount);   // For testing
+        m_objectTransform.Rotate(new Vector3(0.0f, 1.0f, 0.0f), 90.0f);
     }
 
     private int CSLoadFBXFile(string _fbxFilePath)
@@ -322,12 +314,19 @@ public class UseFBXDLLHandler : MonoBehaviour
                         if (materialCount > 0)
                         {
                             m_csMesh.m_materials = new CSMaterial[materialCount];
+                            m_meshRenderer.materials = new Material[materialCount];
                             CPPMaterial** materials = (CPPMaterial**)m_csImportedFBXScene.m_mesh.m_materials.ToPointer();
 
                             for (int i = 0; i < materialCount; i++)
                             {
+                                m_meshRenderer.materials[i].shader = Shader.Find("Standard");
+
                                 m_csMesh.m_materials[i].m_materialType = materials[i]->m_materialType;
                                 m_csMesh.m_materials[i].m_materialProperties = new CSMaterial.PropertyData[(int)PropertyType.PROPERTYTYPE_COUNT];
+                                if (materials[i]->m_textureCount > 0)
+                                    m_csMesh.m_materials[i].m_textures = new Texture2D[materials[i]->m_textureCount];
+                                uint currentTextureIndex = 0;
+
                                 for (int j = 0; j < (int)PropertyType.PROPERTYTYPE_COUNT; j++)
                                 {
                                     CPPMaterial.PropertyData** propertyData = (CPPMaterial.PropertyData**)materials[i]->m_materialProperties.ToPointer();
@@ -335,6 +334,78 @@ public class UseFBXDLLHandler : MonoBehaviour
                                     m_csMesh.m_materials[i].m_materialProperties[j].m_textureRelativeFileName = Marshal.PtrToStringAnsi(propertyData[j]->m_textureRelativeFileName);
                                     m_csMesh.m_materials[i].m_materialProperties[j].m_textureAbsoluteFilePath = Marshal.PtrToStringAnsi(propertyData[j]->m_textureAbsoluteFilePath);
                                     m_csMesh.m_materials[i].m_materialProperties[j].m_dataColorValues = propertyData[j]->m_dataColorValues;
+
+                                    if (m_csMesh.m_materials[i].m_materialProperties[j].m_textureRelativeFileName != null || m_csMesh.m_materials[i].m_materialProperties[j].m_textureAbsoluteFilePath != null)
+                                    {
+                                        m_csMesh.m_materials[i].m_textures[currentTextureIndex] = LoadPNG(m_csMesh.m_materials[i].m_materialProperties[j].m_textureAbsoluteFilePath);
+
+                                        Color color;
+                                        color.r = propertyData[j]->m_dataColorValues.x;
+                                        color.g = propertyData[j]->m_dataColorValues.y;
+                                        color.b = propertyData[j]->m_dataColorValues.z;
+                                        color.a = propertyData[j]->m_dataColorValues.w;
+
+                                        switch (propertyData[j]->m_propertyType)
+                                        {
+                                            case PropertyType.PROPERTYTYPE_EMISSIVE:
+                                                {
+                                                    m_meshRenderer.materials[i].EnableKeyword("_EMISSION");
+                                                    m_meshRenderer.materials[i].SetTexture("_EmissionMap", m_csMesh.m_materials[i].m_textures[currentTextureIndex]);
+                                                    m_meshRenderer.materials[i].SetColor("_EmissionColor", color);
+                                                }
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_AMBIENT:
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_DIFFUSE:
+                                                {
+                                                    m_meshRenderer.materials[i].EnableKeyword("_MainTex");
+                                                    m_meshRenderer.materials[i].SetTexture("_MainTex", m_csMesh.m_materials[i].m_textures[currentTextureIndex]);
+                                                    m_meshRenderer.materials[i].SetColor("_MainTex", color);
+                                                }
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_NORMAL:
+                                                {
+                                                    m_meshRenderer.materials[i].EnableKeyword("_BumpMap");
+                                                    m_meshRenderer.materials[i].SetTexture("_BumpMap", m_csMesh.m_materials[i].m_textures[currentTextureIndex]);
+                                                    m_meshRenderer.materials[i].SetFloat("_BumpScale", color.a);
+                                                }
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_BUMP:
+                                                {
+                                                    m_meshRenderer.materials[i].EnableKeyword("_BumpMap");
+                                                    m_meshRenderer.materials[i].SetTexture("_BumpMap", m_csMesh.m_materials[i].m_textures[currentTextureIndex]);
+                                                    m_meshRenderer.materials[i].SetFloat("_BumpScale", color.a);
+                                                }
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_TRANSPARENCY:
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_DISPLACEMENT:
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_VECTOR_DISPLACEMENT:
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_SPECULAR:
+                                                {
+                                                    m_meshRenderer.materials[i].EnableKeyword("_METALLICGLOSSMAP");
+                                                    m_meshRenderer.materials[i].SetTexture("_MetallicGlossMap", m_csMesh.m_materials[i].m_textures[currentTextureIndex]);
+                                                    m_meshRenderer.materials[i].SetFloat("Metallic", color.a);
+                                                }
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_SHININESS:
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_REFLECTION:
+                                                {
+                                                    m_meshRenderer.materials[i].EnableKeyword("_Glossiness");
+                                                    m_meshRenderer.materials[i].SetFloat("Smoothness", color.a);
+                                                }
+                                                break;
+                                            case PropertyType.PROPERTYTYPE_COUNT:
+                                                break;
+                                            default:
+                                                break;
+                                        }
+
+                                        ++currentTextureIndex;
+                                    }
                                 }
                             }
                         }

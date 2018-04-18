@@ -529,6 +529,7 @@ int FBXHandler::LoadMaterialFromFBXFile(const char * _filePath)
 
 						strncpy(currentProperty->m_textureAbsoluteFilePath, absoluteFileName, strlen(absoluteFileName) + 1);
 						strncpy(currentProperty->m_textureRelativeFileName, relativeFileName, strlen(relativeFileName) + 1);
+						++m_mesh->m_materials[i]->m_textureCount;
 					}
 				}
 			}
@@ -683,6 +684,7 @@ MeshComponentsAdvanced::Material::Material()
 	{
 		m_materialProperties[i] = new PropertyData();
 	}
+	m_textureCount = 0;
 }
 
 MeshComponentsAdvanced::Material::~Material()
@@ -702,6 +704,7 @@ MeshComponentsAdvanced::Material::~Material()
 		delete m_materialProperties;
 		m_materialProperties = 0;
 	}
+	m_textureCount = 0;
 
 	//m_materialProperties.clear();
 }
