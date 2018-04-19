@@ -127,10 +127,11 @@ Mesh::~Mesh(){
 
 Object::Object(){
 	m_parent = 0;
-	m_child = 0;
+	m_children = { 0 };
 	m_mesh = 0;
 	m_materials = { 0 };
 
+	m_childrenCount = 0;
 	m_materialCount = 0;
 }
 
@@ -140,10 +141,22 @@ Object::~Object(){
 		m_parent = 0;
 	}
 
-	if (m_child) {
-		delete m_child;
-		m_child = 0;
+	for (int i = 0; i < (int)m_childrenCount; i++)
+	{
+		if (m_children[i])
+		{
+			delete m_children[i];
+			m_children[i] = 0;
+		}
 	}
+
+	if (m_children)
+	{
+		delete m_children;
+		m_children = 0;
+	}
+
+	m_childrenCount = 0;
 
 	if (m_mesh)
 	{
@@ -242,40 +255,58 @@ CRESULT FBXHandler::LoadFBXFile(const char * _filePath)
 }
 
 // Takes in the current index and returns the new index
-CRESULT FBXHandler::LoadMeshHelper(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode) {
-	int childCount = _inOutFbxNode->GetChildCount();
+CRESULT FBXHandler::LoadMeshHelper(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode, unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPast, unsigned& _previousCallsParent) {
 
-	if (childCount > 0) {
-		for (int currIndex = 0; currIndex < childCount; currIndex++)
-		{
-			FbxNode* currNode = _inOutFbxNode->GetChild(currIndex);
+	CRESULT result;
 
-			int childCountAgain = currNode->GetChildCount();
+	const char* name = _inOutFbxNode->GetName();
 
-			if (childCountAgain > 0)
-			{
-				return LoadMeshHelper(_objectIndex, _scene, currNode);
-			}
+	unsigned childCount = _inOutFbxNode->GetChildCount();
 
-			else
-			{
-				CRESULT result = FillOutMesh(_objectIndex, _scene, currNode);
+	unsigned previousCallsParent = _previousCallsParent;
+	unsigned previousChildrenPast = _numberOfChildrenPast;
 
-				++_objectIndex;
-			
-				return result;
-			}
-		}
-	}
+	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPast]->m_children = new Object*[childCount];
 
-	else
+	for (unsigned currIndex = 0; currIndex < childCount; currIndex++)
 	{
-		CRESULT result = FillOutMesh(_objectIndex, _scene, _inOutFbxNode);
+		FbxNode* currNode = _inOutFbxNode->GetChild(currIndex);
+
+		const char* otherName = currNode->GetName();
+
+		result = FillOutMesh(_objectIndex, _scene, currNode);
+
+		//_scene->m_objects[_currentRootNodeIndex]->m_children[currIndex] = _scene->m_objects[_objectIndex];
+
+		/*if (_currentRootNodeIndex != _previousCallsParent)
+			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + currIndex];
+		
+		else*/
+		if (currIndex != 0)
+			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[previousCallsParent + previousChildrenPast];
+		else
+			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPast];
+
+		if (result != CRESULT_SUCCESS)
+			return result;
 
 		++_objectIndex;
 
-		return result;
+		int childCountAgain = currNode->GetChildCount();
+
+		if (childCountAgain > 0)
+		{
+			unsigned newChildrenPast = _numberOfChildrenPast;
+
+  			result = LoadMeshHelper(_objectIndex, _scene, currNode, _currentRootNodeIndex, ++newChildrenPast, previousCallsParent);
+		}
+
+		_numberOfChildrenPast += childCountAgain;
 	}
+
+	_numberOfChildrenPast += childCount;
+
+	return result;
 }
 
 CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode)
@@ -519,6 +550,8 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 // Returns 1 if success... Negative numbers for error codes
 CRESULT FBXHandler::LoadMeshFromFBXFile(FbxScene* _fbxScene)
 {
+	CRESULT result;
+
 	if (m_scene == nullptr)
 		m_scene = new Scene();
 
@@ -534,29 +567,32 @@ CRESULT FBXHandler::LoadMeshFromFBXFile(FbxScene* _fbxScene)
 
 		m_scene->m_objects = new Object*[m_scene->m_numberOfObjects];
 
+		unsigned numberOfChildrenPast = 0;
+
 		int childCount = lRootNode->GetChildCount();
-		for (int i = 0; i < lRootNode->GetChildCount(); i++)
+		for (unsigned i = 0; i < lRootNode->GetChildCount(); i++)
 		{
 			FbxNode* tNode = lRootNode->GetChild(i);
+
+			const char* tName = tNode->GetName();
+
+ 			result = FillOutMesh(objectIndex, m_scene, tNode);
+
+			if (result != CRESULT_SUCCESS)
+				return result;
+
+			++objectIndex;
 
 			int check = tNode->GetChildCount();
 
 			if (check > 0)
 			{
-				CRESULT result = LoadMeshHelper(objectIndex, m_scene, tNode);
+				unsigned cannotUseIBecauseOfReference = i;
+
+				result = LoadMeshHelper(objectIndex, m_scene, tNode, i, numberOfChildrenPast, cannotUseIBecauseOfReference);
 				
 				if (result != CRESULT_SUCCESS)
 					return result;
-			}
-
-			else
-			{
-				CRESULT result = FillOutMesh(objectIndex, m_scene, tNode);
-
-				if (result != CRESULT_SUCCESS)
-					return result;
-
-				++objectIndex;
 			}
 		}
 

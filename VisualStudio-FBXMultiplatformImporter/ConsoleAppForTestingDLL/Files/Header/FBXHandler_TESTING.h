@@ -87,10 +87,11 @@ struct Object {
 	Object();
 	~Object();
 	Object*		m_parent;
-	Object*		m_child;
+	Object**	m_children;
 	Mesh*		m_mesh;
 	Material**	m_materials;
 
+	unsigned	m_childrenCount;
 	unsigned	m_materialCount;
 
 	const char* m_name;
@@ -120,7 +121,7 @@ public:
 	~FBXHandler();
 	CRESULT LoadFBXFile(const char* _filePath);
 	CRESULT LoadMeshFromFBXFile(FbxScene* _fbxScene);
-	CRESULT LoadMeshHelper(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode);
+	CRESULT LoadMeshHelper(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode, unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPast, unsigned& _previousCallsParent);
 	CRESULT FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 	//CRESULT LoadMaterialFromFBXFile(FbxScene* _fbxScene);
 };
