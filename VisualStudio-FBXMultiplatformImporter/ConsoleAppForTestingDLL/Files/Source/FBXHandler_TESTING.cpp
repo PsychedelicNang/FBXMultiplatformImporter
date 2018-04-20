@@ -127,9 +127,9 @@ Mesh::~Mesh(){
 
 Object::Object(){
 	m_parent = 0;
-	//m_children = { 0 };
+	m_children = 0;
 	m_mesh = 0;
-	//m_materials = { 0 };
+	m_materials = 0;
 
 	m_childrenCount = 0;
 	m_materialCount = 0;
@@ -151,13 +151,22 @@ Object::~Object(){
 		}
 	}
 
-	//if (m_materials)
-	//{
-	//	delete m_materials;
-	//	m_materials = 0;
-	//}
+	if (m_materials)
+	{
+		delete m_materials;
+		m_materials = 0;
+	}
 
-	m_materials.clear();
+	if (m_children)
+	{
+		delete m_children;
+		m_children = 0;
+	}
+
+	//m_children.clear();
+	//m_materials.clear();
+
+	m_childrenCount = 0;
 
 	m_materialCount = 0;
 }
@@ -176,13 +185,13 @@ Scene::~Scene(){
 			m_objects[i] = 0;
 		}
 	}
-	/*if (m_objects)
+	if (m_objects)
 	{
 		delete m_objects;
 		m_objects = 0;
-	}*/
+	}
 
-	m_objects.clear();
+	//m_objects.clear();
 
 	m_numberOfObjects = 0;
 }
@@ -249,8 +258,8 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
 	if (_increment)
 		++_numberOfChildrenPassed;
 
-	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children = new Object*[childCount];
-	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children.resize(childCount);
+	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children = new Object*[childCount];
+	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children.resize(childCount);
 
 	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenCount = childCount;
 
@@ -260,12 +269,7 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
 
 		const char* currentChildName = currentChild->GetName();
 
-		result = FillOutMesh(_objectIndex, _scene, currentChild);
-
-		if (result != CRESULT_SUCCESS)
-			return result;
-
-		result = FillOutMaterial(_objectIndex, _scene, currentChild);
+		result = RunTasks(_objectIndex, _scene, currentChild);
 
 		if (result != CRESULT_SUCCESS)
 			return result;
@@ -307,7 +311,6 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 	if (FbxNodeAttribute::eMesh == geoNodeType)
 	{
 		FbxMesh* theMesh = (FbxMesh*)geometry;
-		//MeshComponentsAdvanced::OutInformationAdvanced meshInst;
 
 		_scene->m_objects[_objectIndex] = new Object();
 		_scene->m_objects[_objectIndex]->m_mesh = new Mesh();
@@ -315,7 +318,6 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 		m_scene->m_objects[_objectIndex]->m_name = _fbxNode->GetName();
 
 		Mesh* currentMesh = _scene->m_objects[_objectIndex]->m_mesh;
-		//m_mesh = new Mesh();
 
 		int mPolygonCount = theMesh->GetPolygonCount();
 		int mPolygonVertexCount = theMesh->GetControlPointsCount();
@@ -429,9 +431,6 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 			mUVName = mUVNames[0];
 		}
 
-		//int indexCount = theMesh->GetPolygonVertexCount();
-		//meshInst.indices.resize(mPolygonCount * TRIANGLE_VERTEX_COUNT);
-
 		currentMesh->m_vertexCount = mPolygonVertexCount;
 		currentMesh->m_indexCount = mPolygonCount * TRIANGLE_VERTEX_COUNT;
 
@@ -471,14 +470,10 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 				if (mAllByControlPoint)
 				{
 					currentMesh->m_indices[lIndexOffset + mVerticeIndex] = static_cast<unsigned int>(mControlPointIndex);
-					//meshInst.indices[lIndexOffset + mVerticeIndex] = static_cast<unsigned int>(mControlPointIndex);
 				}
 				// Populate the array with vertex attribute, if by polygon vertex.
 				else
 				{
-					//MeshComponentsAdvanced::VertexAdvanced currVert;
-					//meshInst.indices[lIndexOffset + mVerticeIndex] = static_cast<unsigned int>(mVertexCount);
-
 					currentMesh->m_indices[lIndexOffset + mVerticeIndex] = static_cast<unsigned int>(mVertexCount);
 
 					mCurrentVertex = mControlPoints[mControlPointIndex];
@@ -486,10 +481,6 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 					currentMesh->m_allVerticesPositions[mVertexCount].x = static_cast<float>(mCurrentVertex[0]);
 					currentMesh->m_allVerticesPositions[mVertexCount].y = static_cast<float>(mCurrentVertex[1]);
 					currentMesh->m_allVerticesPositions[mVertexCount].z = static_cast<float>(mCurrentVertex[2]);
-					//currVert.position[0] = static_cast<float>(mCurrentVertex[0]);
-					//currVert.position[1] = static_cast<float>(mCurrentVertex[1]);
-					//currVert.position[2] = static_cast<float>(mCurrentVertex[2]);
-					//currVert.position[3] = 1;
 
 					if (mHasNormal)
 					{
@@ -498,10 +489,6 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 						currentMesh->m_allVerticesNormals[mVertexCount].x = static_cast<float>(mCurrentNormal[0]);
 						currentMesh->m_allVerticesNormals[mVertexCount].y = static_cast<float>(mCurrentNormal[1]);
 						currentMesh->m_allVerticesNormals[mVertexCount].z = static_cast<float>(mCurrentNormal[2]);
-						//currVert.normals[0] = static_cast<float>(mCurrentNormal[0]);
-						//currVert.normals[1] = static_cast<float>(mCurrentNormal[1]);
-						//currVert.normals[2] = static_cast<float>(mCurrentNormal[2]);
-						//currVert.normals[3] = 1.f;
 					}
 
 					if (mHasUV)
@@ -511,16 +498,12 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 
 						currentMesh->m_allVerticesUVs[mVertexCount].x = static_cast<float>(mCurrentUV[0]);
 						currentMesh->m_allVerticesUVs[mVertexCount].y = static_cast<float>(mCurrentUV[1]);
-						//currVert.uvs[0] = static_cast<float>(mCurrentUV[0]);
-						//currVert.uvs[1] = static_cast<float>(mCurrentUV[1]);
 					}
-					//meshInst.vertices.push_back(currVert);
 				}
 				++mVertexCount;
 			}
 			mSubMeshes[lMaterialIndex]->TriangleCount += 1;
 		}
-		//_outVector.push_back(meshInst);
 		for (int i = 0; i < mSubMeshes.Size(); i++)
 		{
 			delete mSubMeshes[i];
@@ -546,8 +529,8 @@ CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode 
 		return CRESULT_SUCCESS;
 
 	m_scene->m_objects[_objectIndex]->m_materialCount = materialCount;
-	//m_scene->m_objects[i]->m_materials = new Material*[materialCount];
-	m_scene->m_objects[_objectIndex]->m_materials.resize(materialCount);
+	m_scene->m_objects[_objectIndex]->m_materials = new Material*[materialCount];
+	//m_scene->m_objects[_objectIndex]->m_materials.resize(materialCount);
 
 	for (unsigned currMaterialIndex = 0; currMaterialIndex < materialCount; currMaterialIndex++)
 	{
@@ -756,6 +739,23 @@ CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode 
 	return CRESULT_SUCCESS;
 }
 
+CRESULT FBXHandler::RunTasks(int & _objectIndex, Scene * _scene, FbxNode * _fbxNode)
+{
+	CRESULT result;
+
+	result = FillOutMesh(_objectIndex, _scene, _fbxNode);
+
+	if (result != CRESULT_SUCCESS)
+		return result;
+
+	result = FillOutMaterial(_objectIndex, _scene, _fbxNode);
+
+	if (result != CRESULT_SUCCESS)
+		return result;
+
+	return CRESULT_SUCCESS;
+}
+
 CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 {
 	CRESULT result;
@@ -773,12 +773,12 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 		if (m_scene->m_numberOfObjects <= 0)
 			return CRESULT_NO_OBJECTS_IN_SCENE;
 
-		//m_scene->m_objects = new Object*[m_scene->m_numberOfObjects];
-		m_scene->m_objects.resize(m_scene->m_numberOfObjects);
+		m_scene->m_objects = new Object*[m_scene->m_numberOfObjects];
+		//m_scene->m_objects.resize(m_scene->m_numberOfObjects);
 
 		unsigned numberOfChildrenPassed = 0;
 
-		int childCount = lRootNode->GetChildCount();
+		unsigned childCount = lRootNode->GetChildCount();
 
 		for (unsigned i = 0; i < childCount; i++)
 		{
@@ -786,13 +786,7 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 
 			const char* tName = tNode->GetName();
 
- 			result = FillOutMesh(objectIndex, m_scene, tNode);
-
-			if (result != CRESULT_SUCCESS)
-				return result;
-
-			result = FillOutMaterial(objectIndex, m_scene, tNode);
-
+			result = RunTasks(objectIndex, m_scene, tNode);
 			if (result != CRESULT_SUCCESS)
 				return result;
 

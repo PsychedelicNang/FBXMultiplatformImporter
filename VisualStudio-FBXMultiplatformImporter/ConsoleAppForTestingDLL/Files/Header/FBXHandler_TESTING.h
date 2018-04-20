@@ -2,10 +2,10 @@
 
 #include "fbxsdk.h"
 #include <string>
-#include <vector>
+//#include <vector>
 
-//namespace CMath
-//{
+namespace CMath
+{
 	struct Vector2 {
 		Vector2();
 		~Vector2();
@@ -29,10 +29,10 @@
 		float z;
 		float w;
 	};
-//}
+}
 
-//namespace ObjectInfo {
-	//using namespace CMath;
+namespace ObjectInfo {
+	using namespace CMath;
 	struct Material {
 		Material();
 		~Material();
@@ -81,18 +81,18 @@
 		unsigned	m_vertexCount;
 		unsigned	m_indexCount;
 	};
-//}
+}
 
-//using namespace ObjectInfo;
+using namespace ObjectInfo;
 struct Object {
 	Object();
 	~Object();
 	Object*		m_parent;
-	//Object**	m_children;
-	std::vector<Object*> m_children;
+	Object**	m_children;
+	//std::vector<Object*> m_children;
 	Mesh*		m_mesh;
-	//Material**	m_materials;
-	std::vector<Material*> m_materials;
+	Material**	m_materials;
+	//std::vector<Material*> m_materials;
 
 	unsigned	m_childrenCount;
 	unsigned	m_materialCount;
@@ -104,8 +104,8 @@ struct Scene
 {
 	Scene();
 	~Scene();
-	//Object**	m_objects;
-	std::vector<Object*> m_objects;
+	Object**	m_objects;
+	//std::vector<Object*> m_objects;
 	unsigned	m_numberOfObjects;
 };
 
@@ -123,10 +123,17 @@ class FBXHandler {
 public:
 	FBXHandler();
 	~FBXHandler();
+
 	CRESULT LoadFBXFile(const char* _filePath);
+
+private:
 	CRESULT LoadFBXScene(FbxScene* _fbxScene);
 	CRESULT LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode,
 		unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPassed, unsigned& _previousCallsParent, bool _increment);
 	CRESULT FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 	CRESULT FillOutMaterial(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
+
+	/* Function which runs the tasks for the fbx parser. If we want just a mesh, we only call FillOutMesh() in this function. 
+	 * If we want to grab the meshes and materials from the fbx models inside the scene, then we call FillOutMesh() and FillOutMaterial() in this function. */
+	CRESULT RunTasks(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 };
