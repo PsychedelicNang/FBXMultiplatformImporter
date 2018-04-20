@@ -2,6 +2,7 @@
 
 #include "fbxsdk.h"
 #include <string>
+#include <vector>
 
 //namespace CMath
 //{
@@ -87,9 +88,11 @@ struct Object {
 	Object();
 	~Object();
 	Object*		m_parent;
-	Object**	m_children;
+	//Object**	m_children;
+	std::vector<Object*> m_children;
 	Mesh*		m_mesh;
-	Material**	m_materials;
+	//Material**	m_materials;
+	std::vector<Material*> m_materials;
 
 	unsigned	m_childrenCount;
 	unsigned	m_materialCount;
@@ -101,7 +104,8 @@ struct Scene
 {
 	Scene();
 	~Scene();
-	Object**	m_objects;
+	//Object**	m_objects;
+	std::vector<Object*> m_objects;
 	unsigned	m_numberOfObjects;
 };
 
@@ -120,8 +124,9 @@ public:
 	FBXHandler();
 	~FBXHandler();
 	CRESULT LoadFBXFile(const char* _filePath);
-	CRESULT LoadMeshFromFBXFile(FbxScene* _fbxScene);
-	CRESULT LoadMeshHelper(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode, unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPast, unsigned& _previousCallsParent);
+	CRESULT LoadFBXScene(FbxScene* _fbxScene);
+	CRESULT LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode,
+		unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPassed, unsigned& _previousCallsParent, bool _increment);
 	CRESULT FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
-	//CRESULT LoadMaterialFromFBXFile(FbxScene* _fbxScene);
+	CRESULT FillOutMaterial(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 };

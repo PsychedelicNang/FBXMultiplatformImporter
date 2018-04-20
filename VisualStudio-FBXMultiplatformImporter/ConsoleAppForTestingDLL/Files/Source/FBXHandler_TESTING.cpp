@@ -127,37 +127,15 @@ Mesh::~Mesh(){
 
 Object::Object(){
 	m_parent = 0;
-	m_children = { 0 };
+	//m_children = { 0 };
 	m_mesh = 0;
-	m_materials = { 0 };
+	//m_materials = { 0 };
 
 	m_childrenCount = 0;
 	m_materialCount = 0;
 }
 
 Object::~Object(){
-	if (m_parent) {
-		delete m_parent;
-		m_parent = 0;
-	}
-
-	for (int i = 0; i < (int)m_childrenCount; i++)
-	{
-		if (m_children[i])
-		{
-			delete m_children[i];
-			m_children[i] = 0;
-		}
-	}
-
-	if (m_children)
-	{
-		delete m_children;
-		m_children = 0;
-	}
-
-	m_childrenCount = 0;
-
 	if (m_mesh)
 	{
 		delete m_mesh;
@@ -173,11 +151,13 @@ Object::~Object(){
 		}
 	}
 
-	if (m_materials)
-	{
-		delete m_materials;
-		m_materials = 0;
-	}
+	//if (m_materials)
+	//{
+	//	delete m_materials;
+	//	m_materials = 0;
+	//}
+
+	m_materials.clear();
 
 	m_materialCount = 0;
 }
@@ -196,11 +176,13 @@ Scene::~Scene(){
 			m_objects[i] = 0;
 		}
 	}
-	if (m_objects)
+	/*if (m_objects)
 	{
 		delete m_objects;
 		m_objects = 0;
-	}
+	}*/
+
+	m_objects.clear();
 
 	m_numberOfObjects = 0;
 }
@@ -245,8 +227,7 @@ CRESULT FBXHandler::LoadFBXFile(const char * _filePath)
 	// The file is imported; so get rid of the importer.
 	lImporter->Destroy();
 
-	LoadMeshFromFBXFile(lScene);
-	//LoadMaterialFromFBXFile(lScene);
+	LoadFBXScene(lScene);
 
 	// Destroy the SDK manager and all the other objects it was handling.
 	lSdkManager->Destroy();
@@ -255,7 +236,7 @@ CRESULT FBXHandler::LoadFBXFile(const char * _filePath)
 }
 
 // Takes in the current index and returns the new index
-CRESULT FBXHandler::LoadMeshHelper(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode, unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPast, unsigned& _previousCallsParent) {
+CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode, unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPassed, unsigned& _previousCallsParent, bool _increment) {
 
 	CRESULT result;
 
@@ -263,48 +244,58 @@ CRESULT FBXHandler::LoadMeshHelper(int& _objectIndex, Scene* _scene, FbxNode* _i
 
 	unsigned childCount = _inOutFbxNode->GetChildCount();
 
-	unsigned previousCallsParent = _previousCallsParent;
-	unsigned previousChildrenPast = _numberOfChildrenPast;
+	unsigned previousChildrenPassed = _numberOfChildrenPassed;
 
-	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPast]->m_children = new Object*[childCount];
+	if (_increment)
+		++_numberOfChildrenPassed;
+
+	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children = new Object*[childCount];
+	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children.resize(childCount);
+
+	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenCount = childCount;
 
 	for (unsigned currIndex = 0; currIndex < childCount; currIndex++)
 	{
-		FbxNode* currNode = _inOutFbxNode->GetChild(currIndex);
+		FbxNode* currentChild = _inOutFbxNode->GetChild(currIndex);
 
-		const char* otherName = currNode->GetName();
+		const char* currentChildName = currentChild->GetName();
 
-		result = FillOutMesh(_objectIndex, _scene, currNode);
+		result = FillOutMesh(_objectIndex, _scene, currentChild);
 
-		//_scene->m_objects[_currentRootNodeIndex]->m_children[currIndex] = _scene->m_objects[_objectIndex];
+		if (result != CRESULT_SUCCESS)
+			return result;
 
-		/*if (_currentRootNodeIndex != _previousCallsParent)
-			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + currIndex];
-		
-		else*/
+		result = FillOutMaterial(_objectIndex, _scene, currentChild);
+
+		if (result != CRESULT_SUCCESS)
+			return result;
+
 		if (currIndex != 0)
-			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[previousCallsParent + previousChildrenPast];
+		{
+			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_previousCallsParent + previousChildrenPassed];
+
+			_scene->m_objects[_currentRootNodeIndex + previousChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
+		}
 		else
-			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPast];
+		{
+			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed];
+
+			_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
+
+		}
 
 		if (result != CRESULT_SUCCESS)
 			return result;
 
 		++_objectIndex;
 
-		int childCountAgain = currNode->GetChildCount();
+		int childCountAgain = currentChild->GetChildCount();
 
 		if (childCountAgain > 0)
 		{
-			unsigned newChildrenPast = _numberOfChildrenPast;
-
-  			result = LoadMeshHelper(_objectIndex, _scene, currNode, _currentRootNodeIndex, ++newChildrenPast, previousCallsParent);
+  			result = LoadSceneHelperFunction(_objectIndex, _scene, currentChild, _currentRootNodeIndex, _numberOfChildrenPassed, _previousCallsParent, true);
 		}
-
-		_numberOfChildrenPast += childCountAgain;
 	}
-
-	_numberOfChildrenPast += childCount;
 
 	return result;
 }
@@ -547,8 +538,225 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 	}
 }
 
-// Returns 1 if success... Negative numbers for error codes
-CRESULT FBXHandler::LoadMeshFromFBXFile(FbxScene* _fbxScene)
+CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode * _fbxNode)
+{
+	unsigned materialCount = _fbxNode->GetMaterialCount();
+
+	if (materialCount <= 0)
+		return CRESULT_SUCCESS;
+
+	m_scene->m_objects[_objectIndex]->m_materialCount = materialCount;
+	//m_scene->m_objects[i]->m_materials = new Material*[materialCount];
+	m_scene->m_objects[_objectIndex]->m_materials.resize(materialCount);
+
+	for (unsigned currMaterialIndex = 0; currMaterialIndex < materialCount; currMaterialIndex++)
+	{
+		m_scene->m_objects[_objectIndex]->m_materials[currMaterialIndex] = new Material();
+		Material* currentMaterial = m_scene->m_objects[_objectIndex]->m_materials[currMaterialIndex];
+
+		FbxSurfaceMaterial* currentFBXMaterial = _fbxNode->GetMaterial(currMaterialIndex);
+		if (!currentFBXMaterial) break;
+
+		if (currentFBXMaterial->Is<FbxSurfacePhong>()) currentMaterial->m_materialType = Material::MATERIALTYPE_PHONG;
+		else if (currentFBXMaterial->Is<FbxSurfaceLambert>()) currentMaterial->m_materialType = Material::MATERIALTYPE_LAMBERT;
+
+		/************* FbxString comparison returns 0 if the strings are equal *************/
+		FbxProperty lProperty = currentFBXMaterial->GetFirstProperty();
+		while (lProperty.IsValid())
+		{
+			Material::PropertyData* currentProperty = 0;
+
+			FbxString fbxName = lProperty.GetName();
+
+			const char * cPtr = fbxName.Buffer();
+			std::string strName = std::string(cPtr);
+
+			if (currentFBXMaterial->Is<FbxSurfacePhong>())
+			{
+				if ("SpecularColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SPECULAR;
+				}
+				else if ("SpecularFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SPECULAR;
+				}
+				else if ("Shininess" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SHININESS];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SHININESS;
+				}
+				else if ("ReflectionColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_REFLECTION;
+				}
+				else if ("ReflectionFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_REFLECTION;
+				}
+				else if ("EmissiveColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+				}
+				else if ("EmissiveFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+				}
+				else if ("AmbientColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+				}
+				else if ("AmbientFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+				}
+				else if ("DiffuseColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+				}
+				else if ("DiffuseFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+				}
+				else if ("Bump" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+				}
+				else if ("BumpFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+				}
+				else if ("NormalMap" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_NORMAL;
+				}
+				else if ("TransparentColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+				}
+				else if ("TransparencyFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+				}
+				else if ("DisplacementColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+				}
+				else if ("DisplacementFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+				}
+				else if ("VectorDisplacementColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+				}
+				else if ("VectorDisplacementFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+				}
+			}
+
+			else if (currentFBXMaterial->Is<FbxSurfaceLambert>())
+			{
+				if ("EmissiveColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+				}
+				else if ("EmissiveFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+				}
+				else if ("AmbientColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+				}
+				else if ("AmbientFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+				}
+				else if ("DiffuseColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+				}
+				else if ("DiffuseFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+				}
+				else if ("Bump" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+				}
+				else if ("BumpFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+				}
+				else if ("NormalMap" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_NORMAL;
+				}
+				else if ("TransparentColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+				}
+				else if ("TransparencyFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+				}
+				else if ("DisplacementColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+				}
+				else if ("DisplacementFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+				}
+				else if ("VectorDisplacementColor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+				}
+				else if ("VectorDisplacementFactor" == strName) {
+					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+				}
+			}
+
+			if (currentProperty)
+			{
+				if (lProperty.GetPropertyDataType().GetType() == eFbxDouble3) {
+					FbxDouble3 val = lProperty.Get<FbxDouble3>();
+					currentProperty->m_dataColorValues.x = (float)val[0];
+					currentProperty->m_dataColorValues.y = (float)val[1];
+					currentProperty->m_dataColorValues.z = (float)val[2];
+				}
+				else if (lProperty.GetPropertyDataType().GetType() == eFbxDouble) {
+					currentProperty->m_dataColorValues.w = (float)lProperty.Get<FbxDouble>();
+				}
+
+				if (currentProperty->m_textureAbsoluteFilePath == nullptr && currentProperty->m_textureRelativeFileName == nullptr)
+				{
+					FbxFileTexture* lFileTexture = lProperty.GetSrcObject<FbxFileTexture>();
+					if (lFileTexture != nullptr)
+					{
+						const char * relativeFileName = lFileTexture->GetRelativeFileName();
+						const char * absoluteFileName = lFileTexture->GetFileName();
+
+						currentProperty->m_textureAbsoluteFilePath = new char[strlen(absoluteFileName) + 1];
+						currentProperty->m_textureRelativeFileName = new char[strlen(relativeFileName) + 1];
+
+						strncpy(currentProperty->m_textureAbsoluteFilePath, absoluteFileName, strlen(absoluteFileName) + 1);
+						strncpy(currentProperty->m_textureRelativeFileName, relativeFileName, strlen(relativeFileName) + 1);
+						++currentMaterial->m_textureCount;
+					}
+				}
+			}
+
+			lProperty = currentFBXMaterial->GetNextProperty(lProperty);
+		}
+	}
+
+	return CRESULT_SUCCESS;
+}
+
+CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 {
 	CRESULT result;
 
@@ -565,12 +773,14 @@ CRESULT FBXHandler::LoadMeshFromFBXFile(FbxScene* _fbxScene)
 		if (m_scene->m_numberOfObjects <= 0)
 			return CRESULT_NO_OBJECTS_IN_SCENE;
 
-		m_scene->m_objects = new Object*[m_scene->m_numberOfObjects];
+		//m_scene->m_objects = new Object*[m_scene->m_numberOfObjects];
+		m_scene->m_objects.resize(m_scene->m_numberOfObjects);
 
-		unsigned numberOfChildrenPast = 0;
+		unsigned numberOfChildrenPassed = 0;
 
 		int childCount = lRootNode->GetChildCount();
-		for (unsigned i = 0; i < lRootNode->GetChildCount(); i++)
+
+		for (unsigned i = 0; i < childCount; i++)
 		{
 			FbxNode* tNode = lRootNode->GetChild(i);
 
@@ -581,19 +791,28 @@ CRESULT FBXHandler::LoadMeshFromFBXFile(FbxScene* _fbxScene)
 			if (result != CRESULT_SUCCESS)
 				return result;
 
-			++objectIndex;
+			result = FillOutMaterial(objectIndex, m_scene, tNode);
+
+			if (result != CRESULT_SUCCESS)
+				return result;
 
 			int check = tNode->GetChildCount();
+
+			m_scene->m_objects[objectIndex]->m_childrenCount = check;
+
+			++objectIndex;
 
 			if (check > 0)
 			{
 				unsigned cannotUseIBecauseOfReference = i;
 
-				result = LoadMeshHelper(objectIndex, m_scene, tNode, i, numberOfChildrenPast, cannotUseIBecauseOfReference);
+				result = LoadSceneHelperFunction(objectIndex, m_scene, tNode, i, numberOfChildrenPassed, cannotUseIBecauseOfReference, false);
 				
 				if (result != CRESULT_SUCCESS)
 					return result;
 			}
+
+			numberOfChildrenPassed += check;
 		}
 
 		return CRESULT_SUCCESS;
@@ -601,6 +820,246 @@ CRESULT FBXHandler::LoadMeshFromFBXFile(FbxScene* _fbxScene)
 
 	return CRESULT_ROOT_NODE_NOT_FOUND;
 }
+
+//CRESULT FBXHandler::LoadMaterialFromFBXFile(FbxScene* _fbxScene)
+//{
+//	if (m_scene == nullptr)
+//		m_scene = new Scene();
+//
+//	FbxNode* lRootNode = _fbxScene->GetRootNode();
+//	FbxNode* lNode = nullptr;
+//
+//	if (lRootNode) {
+//		for (unsigned i = 0; i < lRootNode->GetChildCount(); i++)
+//		{
+//			unsigned materialCount = 0;
+//
+//			FbxNode* tNode = lRootNode->GetChild(i);
+//			FbxGeometry* geometry = (FbxGeometry*)tNode->GetNodeAttribute();
+//			if (geometry) {
+//				lNode = geometry->GetNode();
+//				if (lNode) {
+//					materialCount = lNode->GetMaterialCount();
+//
+//					m_scene->m_objects[i]->m_materialCount = materialCount;
+//					//m_scene->m_objects[i]->m_materials = new Material*[materialCount];
+//					m_scene->m_objects[i]->m_materials.resize(materialCount);
+//
+//					for (unsigned currMaterialIndex = 0; currMaterialIndex < materialCount; currMaterialIndex++)
+//					{
+//						m_scene->m_objects[i]->m_materials[currMaterialIndex] = new Material();
+//						Material* currentMaterial = m_scene->m_objects[i]->m_materials[currMaterialIndex];
+//
+//						FbxSurfaceMaterial* currentFBXMaterial = _fbxScene->GetMaterial(currMaterialIndex);
+//						if (!currentFBXMaterial) break;
+//
+//						if (currentFBXMaterial->Is<FbxSurfacePhong>()) currentMaterial->m_materialType = Material::MATERIALTYPE_PHONG;
+//						else if (currentFBXMaterial->Is<FbxSurfaceLambert>()) currentMaterial->m_materialType = Material::MATERIALTYPE_LAMBERT;
+//
+//						/************* FbxString comparison returns 0 if the strings are equal *************/
+//						FbxProperty lProperty = currentFBXMaterial->GetFirstProperty();
+//						while (lProperty.IsValid())
+//						{
+//							Material::PropertyData* currentProperty = 0;
+//
+//							FbxString fbxName = lProperty.GetName();
+//
+//							const char * cPtr = fbxName.Buffer();
+//							std::string strName = std::string(cPtr);
+//
+//							if (currentFBXMaterial->Is<FbxSurfacePhong>())
+//							{
+//								if ("SpecularColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SPECULAR;
+//								}
+//								else if ("SpecularFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SPECULAR;
+//								}
+//								else if ("Shininess" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SHININESS];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SHININESS;
+//								}
+//								else if ("ReflectionColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_REFLECTION;
+//								}
+//								else if ("ReflectionFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_REFLECTION;
+//								}
+//								else if ("EmissiveColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+//								}
+//								else if ("EmissiveFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+//								}
+//								else if ("AmbientColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+//								}
+//								else if ("AmbientFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+//								}
+//								else if ("DiffuseColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+//								}
+//								else if ("DiffuseFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+//								}
+//								else if ("Bump" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+//								}
+//								else if ("BumpFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+//								}
+//								else if ("NormalMap" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_NORMAL;
+//								}
+//								else if ("TransparentColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+//								}
+//								else if ("TransparencyFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+//								}
+//								else if ("DisplacementColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+//								}
+//								else if ("DisplacementFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+//								}
+//								else if ("VectorDisplacementColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+//								}
+//								else if ("VectorDisplacementFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+//								}
+//							}
+//
+//							else if (currentFBXMaterial->Is<FbxSurfaceLambert>())
+//							{
+//								if ("EmissiveColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+//								}
+//								else if ("EmissiveFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
+//								}
+//								else if ("AmbientColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+//								}
+//								else if ("AmbientFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
+//								}
+//								else if ("DiffuseColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+//								}
+//								else if ("DiffuseFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
+//								}
+//								else if ("Bump" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+//								}
+//								else if ("BumpFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
+//								}
+//								else if ("NormalMap" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_NORMAL;
+//								}
+//								else if ("TransparentColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+//								}
+//								else if ("TransparencyFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
+//								}
+//								else if ("DisplacementColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+//								}
+//								else if ("DisplacementFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
+//								}
+//								else if ("VectorDisplacementColor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+//								}
+//								else if ("VectorDisplacementFactor" == strName) {
+//									currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+//									currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
+//								}
+//							}
+//
+//							if (currentProperty)
+//							{
+//								if (lProperty.GetPropertyDataType().GetType() == eFbxDouble3) {
+//									FbxDouble3 val = lProperty.Get<FbxDouble3>();
+//									currentProperty->m_dataColorValues.x = (float)val[0];
+//									currentProperty->m_dataColorValues.y = (float)val[1];
+//									currentProperty->m_dataColorValues.z = (float)val[2];
+//								}
+//								else if (lProperty.GetPropertyDataType().GetType() == eFbxDouble) {
+//									currentProperty->m_dataColorValues.w = (float)lProperty.Get<FbxDouble>();
+//								}
+//
+//								if (currentProperty->m_textureAbsoluteFilePath == nullptr && currentProperty->m_textureRelativeFileName == nullptr)
+//								{
+//									FbxFileTexture* lFileTexture = lProperty.GetSrcObject<FbxFileTexture>();
+//									if (lFileTexture != nullptr)
+//									{
+//										const char * relativeFileName = lFileTexture->GetRelativeFileName();
+//										const char * absoluteFileName = lFileTexture->GetFileName();
+//
+//										currentProperty->m_textureAbsoluteFilePath = new char[strlen(absoluteFileName) + 1];
+//										currentProperty->m_textureRelativeFileName = new char[strlen(relativeFileName) + 1];
+//
+//										strncpy(currentProperty->m_textureAbsoluteFilePath, absoluteFileName, strlen(absoluteFileName) + 1);
+//										strncpy(currentProperty->m_textureRelativeFileName, relativeFileName, strlen(relativeFileName) + 1);
+//										++currentMaterial->m_textureCount;
+//									}
+//								}
+//							}
+//
+//							lProperty = currentFBXMaterial->GetNextProperty(lProperty);
+//						}
+//					}
+//				}
+//			}
+//		}
+//	}
+//
+//	else
+//	{
+//		return CRESULT_ROOT_NODE_NOT_FOUND;
+//	}
+//
+//	return CRESULT_SUCCESS;
+//}
 
 //CRESULT FBXHandler::LoadMaterialFromFBXFile(FbxScene* _fbxScene)
 //{
@@ -626,7 +1085,7 @@ CRESULT FBXHandler::LoadMeshFromFBXFile(FbxScene* _fbxScene)
 //
 //	else
 //	{
-//		return -1;
+//		return CRESULT_ROOT_NODE_NOT_FOUND;
 //	}
 //
 //	if (materialCount == 0)
