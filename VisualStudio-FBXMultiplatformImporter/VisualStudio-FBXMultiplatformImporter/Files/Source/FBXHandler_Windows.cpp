@@ -268,7 +268,7 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
 	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children = new Object*[childCount];
 	////_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children.resize(childCount);
 
-	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenCount = childCount;
+	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenCount = childCount;
 
 	for (unsigned currIndex = 0; currIndex < childCount; currIndex++)
 	{

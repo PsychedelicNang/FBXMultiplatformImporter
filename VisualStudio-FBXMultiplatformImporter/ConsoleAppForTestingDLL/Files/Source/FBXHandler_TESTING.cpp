@@ -281,19 +281,18 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
 		if (result != CRESULT_SUCCESS)
 			return result;
 
-		//if (currIndex != 0)
-		//{
-		//	_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_previousCallsParent + previousChildrenPassed];
+		if (currIndex != 0)
+		{
+			//_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_previousCallsParent + previousChildrenPassed];
 
-		//	_scene->m_objects[_currentRootNodeIndex + previousChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
-		//}
-		//else
-		//{
-		//	_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed];
+			//_scene->m_objects[_currentRootNodeIndex + previousChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
+		}
+		else
+		{
+			//_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed];
 
-		//	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
-
-		//}
+			//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
+		}
 
 		if (result != CRESULT_SUCCESS)
 			return result;
