@@ -7,10 +7,11 @@
 #endif
 
 #include "fbxsdk.h"
-#include <vector>
+//#include <vector>
 #include <string>
 
-namespace MeshComponentsAdvanced {
+namespace CMath
+{
 	struct Vector2 {
 		Vector2();
 		~Vector2();
@@ -34,7 +35,10 @@ namespace MeshComponentsAdvanced {
 		float z;
 		float w;
 	};
+}
 
+namespace ObjectInfo {
+	using namespace CMath;
 	struct Material {
 		Material();
 		~Material();
@@ -69,7 +73,6 @@ namespace MeshComponentsAdvanced {
 		};
 
 		MaterialType	m_materialType;
-		//std::vector<PropertyData*>	m_materialProperties;
 		PropertyData**	m_materialProperties;
 		unsigned		m_textureCount;
 	};
@@ -83,22 +86,62 @@ namespace MeshComponentsAdvanced {
 		unsigned*	m_indices;
 		unsigned	m_vertexCount;
 		unsigned	m_indexCount;
-		Material**	m_materials;
-		//std::vector<Material*> m_materials;
-		unsigned	m_materialCount;
 	};
 }
 
+using namespace ObjectInfo;
+struct Object {
+	Object();
+	~Object();
+	//Object*		m_parent;
+	//Object**	m_children;
+	//std::vector<Object*> m_children;
+	Mesh*		m_mesh;
+	Material**	m_materials;
+	//std::vector<Material*> m_materials;
+
+	unsigned	m_childrenCount;
+	unsigned	m_materialCount;
+
+	const char* m_name;
+};
+
+struct Scene
+{
+	Scene();
+	~Scene();
+	Object**	m_objects;
+	//std::vector<Object*> m_objects;
+	unsigned	m_numberOfObjects;
+};
+
+enum CRESULT {
+	CRESULT_SUCCESS = 0,
+	CRESULT_INCORRECT_FILE_PATH,
+	CRESULT_NO_OBJECTS_IN_SCENE,
+	CRESULT_NODE_WAS_NOT_GEOMETRY_TYPE,
+	CRESULT_ROOT_NODE_NOT_FOUND
+};
+
 extern "C" {
-	using namespace MeshComponentsAdvanced;
 	class FBXIMPORTER_WINDOWSDLL_API FBXHandler {
-		MeshComponentsAdvanced::Mesh*	m_mesh;
+		Scene*	m_scene;
 
 	public:
 		FBXHandler();
 		~FBXHandler();
-		void FillOutMesh();
-		int LoadMeshFromFBXFile(const char* _filePath);
-		int LoadMaterialFromFBXFile(const char* _filePath);
+
+		CRESULT LoadFBXFile(const char* _filePath);
+
+	private:
+		CRESULT LoadFBXScene(FbxScene* _fbxScene);
+		CRESULT LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode,
+			unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPassed, unsigned& _previousCallsParent, bool _increment);
+		CRESULT FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
+		CRESULT FillOutMaterial(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
+
+		/* Function which runs the tasks for the fbx parser. If we want just a mesh, we only call FillOutMesh() in this function.
+		* If we want to grab the meshes and materials from the fbx models inside the scene, then we call FillOutMesh() and FillOutMaterial() in this function. */
+		CRESULT RunTasks(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 	};
 }

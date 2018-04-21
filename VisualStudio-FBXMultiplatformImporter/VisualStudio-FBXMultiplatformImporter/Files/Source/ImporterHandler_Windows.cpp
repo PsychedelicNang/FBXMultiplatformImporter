@@ -14,17 +14,7 @@ FBXIMPORTER_WINDOWSDLL_API void CPPDLLDestroyFBXHandler(FBXHandler * _fbxHandler
 	}
 }
 
-FBXIMPORTER_WINDOWSDLL_API void CPPDLLFillOutMesh(FBXHandler * _fbxHandler)
+FBXIMPORTER_WINDOWSDLL_API int CPPDLLLoadFBXFile(FBXHandler * _fbxHandler, const char * _filePath)
 {
-	_fbxHandler->FillOutMesh();
-}
-
-FBXIMPORTER_WINDOWSDLL_API int CPPDLLLoadMeshFromFBXFile(FBXHandler * _fbxHandler, const char* _filePath)
-{
-	return _fbxHandler->LoadMeshFromFBXFile(_filePath);
-}
-
-FBXIMPORTER_WINDOWSDLL_API int CPPDLLLoadMaterialFromFBXFile(FBXHandler * _fbxHandler, const char * _filePath)
-{
-	return _fbxHandler->LoadMaterialFromFBXFile(_filePath);
+	return _fbxHandler->LoadFBXFile(_filePath);
 }

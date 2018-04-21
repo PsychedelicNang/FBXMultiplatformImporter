@@ -98,7 +98,7 @@ public class UseFBXDLLHandler : MonoBehaviour
     [StructLayout(LayoutKind.Sequential)]
     public struct CSMesh
     {
-        [StructLayout(LayoutKind.Sequential)]
+    
         public struct Vector2
         {
             public float x;
@@ -175,7 +175,6 @@ public class UseFBXDLLHandler : MonoBehaviour
         m_meshRenderer = gameObject.AddComponent<MeshRenderer>();
         m_objectTransform = gameObject.GetComponent<Transform>();
 
-
         m_csMesh = new CSMesh();
 
         m_csImportedFBXScene = new CSImportedFBXScene();
@@ -244,7 +243,6 @@ public class UseFBXDLLHandler : MonoBehaviour
 
     private int CSLoadFBXFile(string _fbxFilePath)
     {
-
         int result = CPPDLLLoadMeshFromFBXFile(m_cppImportedFBXScene, _fbxFilePath);
         int result2 = CPPDLLLoadMaterialFromFBXFile(m_cppImportedFBXScene, _fbxFilePath);
 
