@@ -227,6 +227,8 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
     Mesh                m_unityMesh;
     MeshRenderer        m_unityMeshRenderer;
     Transform           m_unityObjectTransform;
+   
+    public List<GameObject>    m_unityGameObjects;
     /***************** Member Variables *****************/
 
     /***************** Class Functions *****************/
@@ -313,19 +315,32 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
 
             CPPObject** sceneObjects = (CPPObject**)tempFbxSCene->m_objects;
 
+            m_unityGameObjects = new List<GameObject>((int)m_csFBXHandler.m_fbxScene.m_numberOfObjects);
+
             for (uint currObjectIndex = 0; currObjectIndex < m_csFBXHandler.m_fbxScene.m_numberOfObjects; currObjectIndex++)
             {
                 m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex] = new CSObject(sceneObjects[currObjectIndex]->m_numberOfChildren, sceneObjects[currObjectIndex]->m_numberOfMaterials, Marshal.PtrToStringAnsi(sceneObjects[currObjectIndex]->m_name));
+                m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_arrayIndexID = sceneObjects[currObjectIndex]->m_arrayIndexID;
+                m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_parentArrayIndexID = sceneObjects[currObjectIndex]->m_parentArrayIndexID;
+
+                m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_childrenArrayIndexIDs = new int[m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_numberOfChildren];
+
+                int* children = (int*)sceneObjects[currObjectIndex]->m_childrenArrayIndexIDs.ToPointer();
+
+                for (int currChildIndex = 0; currChildIndex < m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_numberOfChildren; currChildIndex++)
+                {
+                    m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_childrenArrayIndexIDs[currChildIndex] = children[currChildIndex];
+                }
 
                 CPPMesh* currentMesh = ((CPPMesh*)sceneObjects[currObjectIndex]->m_mesh.ToPointer());
 
                 GameObject unityGameObject = new GameObject();
+                m_unityGameObjects.Add(unityGameObject);
+
                 MeshFilter currMeshFilter = unityGameObject.AddComponent<MeshFilter>();
                 MeshRenderer currMeshRenderer = unityGameObject.AddComponent<MeshRenderer>();
 
                 unityGameObject.name = m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_name;
-
-                unityGameObject.transform.parent = m_unityObjectTransform;
 
                 print("Object: " + m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_name + "\tMaterial Count: " + sceneObjects[currObjectIndex]->m_numberOfMaterials + "\tNumber of Children: " + sceneObjects[currObjectIndex]->m_numberOfChildren);
 
@@ -485,9 +500,16 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
                     }
                 }
             }
+
+            for (uint currObjectIndex = 0; currObjectIndex < m_csFBXHandler.m_fbxScene.m_numberOfObjects; currObjectIndex++)
+            {
+                m_unityGameObjects[(int)currObjectIndex].transform.parent = m_unityGameObjects[(int)m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_parentArrayIndexID].transform;
+            }
+
+            m_unityGameObjects[0].transform.parent = m_unityObjectTransform;
         }
     }
-
+    
     private static Texture2D LoadPNG(string _filePath)
     {
         Texture2D tex = null;
