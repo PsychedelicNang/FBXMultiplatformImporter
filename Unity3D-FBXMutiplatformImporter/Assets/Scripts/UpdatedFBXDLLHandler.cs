@@ -226,6 +226,9 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
     /***************** Class Functions *****************/
     // Use this for initialization
     void Start () {
+        TimeSpan m_durationFileLoad;
+        TimeSpan m_durationFileParsed;
+
         m_unityMeshFilter = gameObject.AddComponent<MeshFilter>();
         m_unityMesh = m_unityMeshFilter.mesh;
         m_unityMeshRenderer = gameObject.AddComponent<MeshRenderer>();
@@ -236,12 +239,34 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
         // C++ handler which is unmanaged memory (we need to delete by calling CPPDLLDestroyFBXHandler())
         m_cppFBXHandler = CPPDLLCreateFBXHandler();
 
-        CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\TestSciFiWithHierarchyNoAnimTriangulated.fbx");
+        DateTime m_timeBeforeFileLoad = DateTime.Now;
+        //CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\TestSciFiWithHierarchyNoAnimTriangulated.fbx");
+        //CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\TestSciFiWithHierarchy.fbx");
+        CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksMap\\StressTestFBXLoader.fbx");
+        DateTime m_timeAfterFileLoad = DateTime.Now;
+
+        m_durationFileLoad = m_timeAfterFileLoad - m_timeBeforeFileLoad;
 
         switch (result)
         {
             case CRESULT.CRESULT_SUCCESS:
-                CSParseFBXHandler();
+                {
+                    DateTime m_timeBeforeFileParsed = DateTime.Now;
+                    CSParseFBXHandler();
+                    DateTime m_timeAfterFileParsed = DateTime.Now;
+
+                    m_durationFileParsed = m_timeAfterFileParsed - m_timeBeforeFileParsed;
+
+                    if (m_durationFileLoad.Seconds > 0)
+                        print("The FBX File loaded in: " + m_durationFileLoad.Seconds + "." + m_durationFileLoad.Milliseconds + " s");
+                    else
+                        print("The FBX File loaded in: " + m_durationFileLoad.Milliseconds + " ms");
+
+                    if (m_durationFileParsed.Seconds > 0)
+                        print("The FBX File was parsed in: " + m_durationFileParsed.Seconds + "." + m_durationFileParsed.Milliseconds + " s");
+                    else
+                        print("The FBX File was parsed in: " + m_durationFileParsed.Milliseconds + " ms");
+                }
                 break;
             case CRESULT.CRESULT_INCORRECT_FILE_PATH:
                 print("Incorrect File Path.");
@@ -259,7 +284,8 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
                 break;
         }
 
-        m_unityObjectTransform.Translate(new Vector3(0.0f, 25.0f, 0.0f));
+        m_unityObjectTransform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
+        m_unityObjectTransform.Translate(new Vector3(0.0f, 3.0f, 0.0f));
     }
 	
 	// Update is called once per frame
@@ -290,6 +316,8 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
                 GameObject unityGameObject = new GameObject();
                 MeshFilter currMeshFilter = unityGameObject.AddComponent<MeshFilter>();
                 MeshRenderer currMeshRenderer = unityGameObject.AddComponent<MeshRenderer>();
+
+                unityGameObject.name = m_csFBXHandler.m_fbxScene.m_objects[currObjectIndex].m_name;
 
                 unityGameObject.transform.parent = m_unityObjectTransform;
 
@@ -464,6 +492,11 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
             fileData = File.ReadAllBytes(_filePath);
             tex = new Texture2D(1, 1);
             tex.LoadImage(fileData); // LoadImage() auto resizes the texture dimensions.
+        }
+
+        else
+        {
+            return null;
         }
 
         return tex;

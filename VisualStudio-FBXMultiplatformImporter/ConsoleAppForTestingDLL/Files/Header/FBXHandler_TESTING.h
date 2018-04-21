@@ -2,7 +2,7 @@
 
 #include "fbxsdk.h"
 #include <string>
-//#include <vector>
+#include <vector>
 
 namespace CMath
 {
@@ -88,24 +88,24 @@ struct Object {
 	Object();
 	~Object();
 	Object*		m_parent;
-	Object**	m_children;
-	//std::vector<Object*> m_children;
+	//Object**	m_children;
+	std::vector<Object*> m_children;
 	Mesh*		m_mesh;
-	Material**	m_materials;
-	//std::vector<Material*> m_materials;
+	//Material**	m_materials;
+	std::vector<Material*> m_materials;
 
 	unsigned	m_childrenCount;
 	unsigned	m_materialCount;
 
-	const char* m_name;
+	char* m_name;
 };
 
 struct Scene
 {
 	Scene();
 	~Scene();
-	Object**	m_objects;
-	//std::vector<Object*> m_objects;
+	//Object**	m_objects;
+	std::vector<Object*> m_objects;
 	unsigned	m_numberOfObjects;
 };
 

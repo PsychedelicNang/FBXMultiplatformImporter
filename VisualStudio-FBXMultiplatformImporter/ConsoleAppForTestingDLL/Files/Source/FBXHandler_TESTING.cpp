@@ -127,12 +127,13 @@ Mesh::~Mesh(){
 
 Object::Object(){
 	m_parent = 0;
-	m_children = 0;
 	m_mesh = 0;
-	m_materials = 0;
+	//m_children = 0;
+	//m_materials = 0;
 
 	m_childrenCount = 0;
 	m_materialCount = 0;
+	m_name = 0;
 }
 
 Object::~Object(){
@@ -151,7 +152,7 @@ Object::~Object(){
 		}
 	}
 
-	if (m_materials)
+	/*if (m_materials)
 	{
 		delete m_materials;
 		m_materials = 0;
@@ -161,6 +162,12 @@ Object::~Object(){
 	{
 		delete m_children;
 		m_children = 0;
+	}*/
+
+	if (m_name)
+	{
+		delete[]m_name;
+		m_name = 0;
 	}
 
 	//m_children.clear();
@@ -185,12 +192,12 @@ Scene::~Scene(){
 			m_objects[i] = 0;
 		}
 	}
-	if (m_objects)
+	/*if (m_objects)
 	{
 		delete m_objects;
 		m_objects = 0;
 	}
-
+*/
 	//m_objects.clear();
 
 	m_numberOfObjects = 0;
@@ -258,7 +265,7 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
 	if (_increment)
 		++_numberOfChildrenPassed;
 
-	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children = new Object*[childCount];
+	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children = new Object*[childCount];
 	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children.resize(childCount);
 
 	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenCount = childCount;
@@ -274,19 +281,19 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
 		if (result != CRESULT_SUCCESS)
 			return result;
 
-		if (currIndex != 0)
-		{
-			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_previousCallsParent + previousChildrenPassed];
+		//if (currIndex != 0)
+		//{
+		//	_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_previousCallsParent + previousChildrenPassed];
 
-			_scene->m_objects[_currentRootNodeIndex + previousChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
-		}
-		else
-		{
-			_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed];
+		//	_scene->m_objects[_currentRootNodeIndex + previousChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
+		//}
+		//else
+		//{
+		//	_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed];
 
-			_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
+		//	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];
 
-		}
+		//}
 
 		if (result != CRESULT_SUCCESS)
 			return result;
@@ -315,7 +322,9 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 		_scene->m_objects[_objectIndex] = new Object();
 		_scene->m_objects[_objectIndex]->m_mesh = new Mesh();
 
-		m_scene->m_objects[_objectIndex]->m_name = _fbxNode->GetName();
+		const char* name = _fbxNode->GetName();
+		m_scene->m_objects[_objectIndex]->m_name = new char[strlen(name) + 1];
+		strncpy(m_scene->m_objects[_objectIndex]->m_name, name, strlen(name) + 1);
 
 		Mesh* currentMesh = _scene->m_objects[_objectIndex]->m_mesh;
 
@@ -529,8 +538,8 @@ CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode 
 		return CRESULT_SUCCESS;
 
 	m_scene->m_objects[_objectIndex]->m_materialCount = materialCount;
-	m_scene->m_objects[_objectIndex]->m_materials = new Material*[materialCount];
-	//m_scene->m_objects[_objectIndex]->m_materials.resize(materialCount);
+	//m_scene->m_objects[_objectIndex]->m_materials = new Material*[materialCount];
+	m_scene->m_objects[_objectIndex]->m_materials.resize(materialCount);
 
 	for (unsigned currMaterialIndex = 0; currMaterialIndex < materialCount; currMaterialIndex++)
 	{
@@ -773,16 +782,24 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 		if (m_scene->m_numberOfObjects <= 0)
 			return CRESULT_NO_OBJECTS_IN_SCENE;
 
-		m_scene->m_objects = new Object*[m_scene->m_numberOfObjects];
-		//m_scene->m_objects.resize(m_scene->m_numberOfObjects);
+		//m_scene->m_objects = new Object*[m_scene->m_numberOfObjects];
+		m_scene->m_objects.resize(m_scene->m_numberOfObjects);
 
 		unsigned numberOfChildrenPassed = 0;
+
+		unsigned geometryRootNodeIndex = 0;
 
 		unsigned childCount = lRootNode->GetChildCount();
 
 		for (unsigned i = 0; i < childCount; i++)
 		{
 			FbxNode* tNode = lRootNode->GetChild(i);
+
+			if (!(FbxGeometry*)tNode->GetNodeAttribute())
+			{
+				++geometryRootNodeIndex;
+				continue;
+			}
 
 			const char* tName = tNode->GetName();
 
@@ -798,15 +815,16 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 
 			if (check > 0)
 			{
-				unsigned cannotUseIBecauseOfReference = i;
+				unsigned cannotUseIBecauseOfReference = geometryRootNodeIndex;
 
-				result = LoadSceneHelperFunction(objectIndex, m_scene, tNode, i, numberOfChildrenPassed, cannotUseIBecauseOfReference, false);
+				result = LoadSceneHelperFunction(objectIndex, m_scene, tNode, geometryRootNodeIndex, numberOfChildrenPassed, cannotUseIBecauseOfReference, false);
 				
 				if (result != CRESULT_SUCCESS)
 					return result;
 			}
 
 			numberOfChildrenPassed += check;
+			++geometryRootNodeIndex;
 		}
 
 		return CRESULT_SUCCESS;

@@ -46,13 +46,11 @@ Material::PropertyData::~PropertyData() {
 	m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
 	if (m_textureRelativeFileName)
 	{
-		printf(m_textureRelativeFileName);
 		delete[] m_textureRelativeFileName;
 		m_textureRelativeFileName = 0;
 	}
 	if (m_textureAbsoluteFilePath)
 	{
-		printf(m_textureAbsoluteFilePath);
 		delete[]m_textureAbsoluteFilePath;
 		m_textureAbsoluteFilePath = 0;
 	}
@@ -133,6 +131,7 @@ Object::Object() {
 
 	m_childrenCount = 0;
 	m_materialCount = 0;
+	m_name = 0;
 }
 
 Object::~Object() {
@@ -155,6 +154,12 @@ Object::~Object() {
 	{
 		delete m_materials;
 		m_materials = 0;
+	}
+
+	if (m_name)
+	{
+		delete[]m_name;
+		m_name = 0;
 	}
 
 	// m_parent = 0;
@@ -317,7 +322,9 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 		_scene->m_objects[_objectIndex] = new Object();
 		_scene->m_objects[_objectIndex]->m_mesh = new Mesh();
 
-		m_scene->m_objects[_objectIndex]->m_name = _fbxNode->GetName();
+		const char* name = _fbxNode->GetName();
+		m_scene->m_objects[_objectIndex]->m_name = new char[strlen(name) + 1];
+		strncpy(m_scene->m_objects[_objectIndex]->m_name, name, strlen(name) + 1);
 
 		Mesh* currentMesh = _scene->m_objects[_objectIndex]->m_mesh;
 
@@ -780,11 +787,19 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 
 		unsigned numberOfChildrenPassed = 0;
 
+		unsigned geometryRootNodeIndex = 0;
+
 		unsigned childCount = lRootNode->GetChildCount();
 
 		for (unsigned i = 0; i < childCount; i++)
 		{
 			FbxNode* tNode = lRootNode->GetChild(i);
+
+			if (!(FbxGeometry*)tNode->GetNodeAttribute())
+			{
+				++geometryRootNodeIndex;
+				continue;
+			}
 
 			const char* tName = tNode->GetName();
 
@@ -800,15 +815,16 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 
 			if (check > 0)
 			{
-				unsigned cannotUseIBecauseOfReference = i;
+				unsigned cannotUseIBecauseOfReference = geometryRootNodeIndex;
 
-				result = LoadSceneHelperFunction(objectIndex, m_scene, tNode, i, numberOfChildrenPassed, cannotUseIBecauseOfReference, false);
+				result = LoadSceneHelperFunction(objectIndex, m_scene, tNode, geometryRootNodeIndex, numberOfChildrenPassed, cannotUseIBecauseOfReference, false);
 
 				if (result != CRESULT_SUCCESS)
 					return result;
 			}
 
 			numberOfChildrenPassed += check;
+			++geometryRootNodeIndex;
 		}
 
 		return CRESULT_SUCCESS;

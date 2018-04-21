@@ -103,7 +103,7 @@ struct Object {
 	unsigned	m_childrenCount;
 	unsigned	m_materialCount;
 
-	const char* m_name;
+	char* m_name;
 };
 
 struct Scene
