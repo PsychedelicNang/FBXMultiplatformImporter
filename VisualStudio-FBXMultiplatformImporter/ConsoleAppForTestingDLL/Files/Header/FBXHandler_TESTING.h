@@ -2,7 +2,7 @@
 
 #include "fbxsdk.h"
 #include <string>
-#include <vector>
+//#include <vector>
 
 namespace CMath
 {
@@ -87,36 +87,39 @@ using namespace ObjectInfo;
 struct Object {
 	Object();
 	~Object();
-	Object*		m_parent;
+	int		m_parentArrayIndexID;
+	int*	m_childrenArrayIndexIDs;
+	//std::vector<int>m_childrenArrayIndexIDs;
+	//Object*		m_parent;
 	//Object**	m_children;
-	std::vector<Object*> m_children;
+	//std::vector<Object*> m_children;
 	Mesh*		m_mesh;
-	//Material**	m_materials;
-	std::vector<Material*> m_materials;
+	Material**	m_materials;
+	//std::vector<Material*> m_materials;
 
 	unsigned	m_childrenCount;
 	unsigned	m_materialCount;
 
 	char* m_name;
+	unsigned	m_arrayIndexID;
 };
 
 struct Scene
 {
 	Scene();
 	~Scene();
-	//Object**	m_objects;
-	std::vector<Object*> m_objects;
+	Object**	m_objects;
+	//std::vector<Object*> m_objects;
 	unsigned	m_numberOfObjects;
 };
 
 enum CRESULT {
 	CRESULT_SUCCESS = 0,
-	CRESULT_WRONG_FILE_PATH,
+	CRESULT_INCORRECT_FILE_PATH,
 	CRESULT_NO_OBJECTS_IN_SCENE,
 	CRESULT_NODE_WAS_NOT_GEOMETRY_TYPE,
 	CRESULT_ROOT_NODE_NOT_FOUND
 };
-
 class FBXHandler {
 	Scene*	m_scene;
 
@@ -129,7 +132,7 @@ public:
 private:
 	CRESULT LoadFBXScene(FbxScene* _fbxScene);
 	CRESULT LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode,
-		unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPassed, unsigned& _previousCallsParent, bool _increment);
+		unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPassed, unsigned& _previousCallsParent);
 	CRESULT FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 	CRESULT FillOutMaterial(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 

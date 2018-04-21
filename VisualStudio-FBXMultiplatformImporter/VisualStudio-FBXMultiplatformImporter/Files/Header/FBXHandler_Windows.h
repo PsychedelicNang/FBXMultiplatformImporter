@@ -10,6 +10,7 @@
 //#include <vector>
 #include <string>
 
+
 namespace CMath
 {
 	struct Vector2 {
@@ -93,6 +94,9 @@ using namespace ObjectInfo;
 struct Object {
 	Object();
 	~Object();
+	int		m_parentArrayIndexID;
+	int*	m_childrenArrayIndexIDs;
+	//std::vector<int>m_childrenArrayIndexIDs;
 	//Object*		m_parent;
 	//Object**	m_children;
 	//std::vector<Object*> m_children;
@@ -104,6 +108,7 @@ struct Object {
 	unsigned	m_materialCount;
 
 	char* m_name;
+	unsigned	m_arrayIndexID;
 };
 
 struct Scene
@@ -136,7 +141,7 @@ extern "C" {
 	private:
 		CRESULT LoadFBXScene(FbxScene* _fbxScene);
 		CRESULT LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, FbxNode* _inOutFbxNode,
-			unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPassed, unsigned& _previousCallsParent, bool _increment);
+			unsigned& _currentRootNodeIndex, unsigned& _numberOfChildrenPassed, unsigned& _previousCallsParent);
 		CRESULT FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 		CRESULT FillOutMaterial(int& _objectIndex, Scene* _scene, FbxNode* _fbxNode);
 

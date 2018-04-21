@@ -64,7 +64,6 @@ enum CRESULT
     CRESULT_ROOT_NODE_NOT_FOUND
 };
 
-
 public class UpdatedFBXDLLHandler : MonoBehaviour {
 
     /***************** Import DLL Functions *****************/
@@ -153,6 +152,8 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
 
     public struct CPPObject
     {
+        public int m_parentArrayIndexID;
+        public IntPtr m_childrenArrayIndexIDs;
         //public IntPtr m_parent;
         //public IntPtr m_children;
         public IntPtr m_mesh;
@@ -162,6 +163,7 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
         public uint m_numberOfMaterials;
         
         public IntPtr m_name;
+        public uint m_arrayIndexID;
     }
 
     // Cannot be a struct...
@@ -174,11 +176,14 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
             m_name = name;
             m_materials = new CSMaterial[m_numberOfMaterials];
         }
-       // public uint m_parentIndex;
+        // public uint m_parentIndex;
         //public CSObject m_parent;
 
         //[MarshalAs(UnmanagedType.ByValArray, ArraySubType = UnmanagedType.Struct)]
         //public CSObject[] m_children;
+
+        public int m_parentArrayIndexID;
+        public int[] m_childrenArrayIndexIDs;
 
         public CSMesh m_mesh;
 
@@ -188,6 +193,7 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
         public uint m_numberOfMaterials;
 
         public string m_name;
+        public uint m_arrayIndexID;
     }
 
     public struct CPPImportedFBXScene
@@ -201,7 +207,6 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
         public CSObject[] m_objects;
         public uint m_numberOfObjects;
     }
-    /***************** Class Definitions *****************/
 
     public struct CPPFBXHandler
     {
@@ -212,9 +217,10 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
     {
         public CSImportedFBXScene m_fbxScene;
     }
+    /***************** Class Definitions *****************/
 
     /***************** Member Variables *****************/
-    CSFBXHandler        m_csFBXHandler;
+    CSFBXHandler m_csFBXHandler;
     IntPtr              m_cppFBXHandler;
 
     MeshFilter          m_unityMeshFilter;
