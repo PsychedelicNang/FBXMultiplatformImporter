@@ -67,13 +67,16 @@ enum CRESULT
 public class UpdatedFBXDLLHandler : MonoBehaviour {
 
     /***************** Import DLL Functions *****************/
-    [DllImport("FBXImporterDLL_WINDOWS")]
+	//[DllImport("FBXImporterDLL_WINDOWS")]
+	[DllImport("FBXImporterBundle_OSX")]
     static public extern IntPtr CPPDLLCreateFBXHandler();
 
-    [DllImport("FBXImporterDLL_WINDOWS")]
+	//[DllImport("FBXImporterDLL_WINDOWS")]
+	[DllImport("FBXImporterBundle_OSX")]
     static public extern void CPPDLLDestroyFBXHandler(IntPtr theFBXHandlerObject);
 
-    [DllImport("FBXImporterDLL_WINDOWS", CallingConvention = CallingConvention.Cdecl)]
+	//[DllImport("FBXImporterDLL_WINDOWS", CallingConvention = CallingConvention.Cdecl)]
+	[DllImport("FBXImporterBundle_OSX", CallingConvention = CallingConvention.Cdecl)]
     static public extern int CPPDLLLoadFBXFile(IntPtr theFBXHandlerObject, string fbxFilePath);
     /***************** Import DLL Functions *****************/
 
@@ -250,8 +253,9 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
         DateTime m_timeBeforeFileLoad = DateTime.Now;
         //CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\TestSciFiWithHierarchyNoAnimTriangulated.fbx");
         //CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\TestSciFiWithHierarchy.fbx");
-        CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksMap\\StressTestFBXLoader.fbx");
-        DateTime m_timeAfterFileLoad = DateTime.Now;
+        //CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksMap\\StressTestFBXLoader.fbx");
+		CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "/Users/doghead1/Documents/GitHub/FBXMultiplatformImporter/StressTestFBXLoader.fbx");
+		DateTime m_timeAfterFileLoad = DateTime.Now;
 
         m_durationFileLoad = m_timeAfterFileLoad - m_timeBeforeFileLoad;
 

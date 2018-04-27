@@ -1,0 +1,365 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0127B36720937A0900B910C1 /* libfbxsdk.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0127B36620937A0900B910C1 /* libfbxsdk.dylib */; };
+		0127B36A20937BDD00B910C1 /* libfbxsdk.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 0127B36920937BDD00B910C1 /* libfbxsdk.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		01F4A56A20929CCE003FC599 /* FBXHandler_OSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01F4A56920929CCE003FC599 /* FBXHandler_OSX.cpp */; };
+		01F4A56D20929D75003FC599 /* ImporterHandler_OSX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01F4A56C20929D75003FC599 /* ImporterHandler_OSX.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0127B36820937BB700B910C1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				0127B36A20937BDD00B910C1 /* libfbxsdk.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0127B36620937A0900B910C1 /* libfbxsdk.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfbxsdk.dylib; path = "../../../../../Library/Developer/Xcode/DerivedData/Xcode-FBXMultiplatformImporter_OSX-ffndnilbmbbxaqdsrgtbplmlqhda/Build/Products/Debug/libfbxsdk.dylib"; sourceTree = "<group>"; };
+		0127B36920937BDD00B910C1 /* libfbxsdk.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfbxsdk.dylib; path = "../../Unity3D-FBXMutiplatformImporter/Assets/Plugins/libfbxsdk.dylib"; sourceTree = "<group>"; };
+		01F4A55A209296CE003FC599 /* FBXImporterBundle_OSX.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FBXImporterBundle_OSX.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		01F4A55D209296CE003FC599 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		01F4A56820929A2C003FC599 /* FBXHandler_OSX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FBXHandler_OSX.h; sourceTree = "<group>"; };
+		01F4A56920929CCE003FC599 /* FBXHandler_OSX.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FBXHandler_OSX.cpp; sourceTree = "<group>"; };
+		01F4A56B20929D1B003FC599 /* ImporterHandler_OSX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImporterHandler_OSX.h; sourceTree = "<group>"; };
+		01F4A56C20929D75003FC599 /* ImporterHandler_OSX.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ImporterHandler_OSX.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		01F4A557209296CE003FC599 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0127B36720937A0900B910C1 /* libfbxsdk.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		01F4A551209296CE003FC599 = {
+			isa = PBXGroup;
+			children = (
+				0127B36920937BDD00B910C1 /* libfbxsdk.dylib */,
+				01F4A55C209296CE003FC599 /* FBXImporterBundle_OSX */,
+				01F4A55B209296CE003FC599 /* Products */,
+				01F4A56320929799003FC599 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		01F4A55B209296CE003FC599 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				01F4A55A209296CE003FC599 /* FBXImporterBundle_OSX.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		01F4A55C209296CE003FC599 /* FBXImporterBundle_OSX */ = {
+			isa = PBXGroup;
+			children = (
+				01F4A55D209296CE003FC599 /* Info.plist */,
+				01F4A56820929A2C003FC599 /* FBXHandler_OSX.h */,
+				01F4A56920929CCE003FC599 /* FBXHandler_OSX.cpp */,
+				01F4A56B20929D1B003FC599 /* ImporterHandler_OSX.h */,
+				01F4A56C20929D75003FC599 /* ImporterHandler_OSX.cpp */,
+			);
+			path = FBXImporterBundle_OSX;
+			sourceTree = "<group>";
+		};
+		01F4A56320929799003FC599 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0127B36620937A0900B910C1 /* libfbxsdk.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		01F4A559209296CE003FC599 /* FBXImporterBundle_OSX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 01F4A560209296CE003FC599 /* Build configuration list for PBXNativeTarget "FBXImporterBundle_OSX" */;
+			buildPhases = (
+				01F4A556209296CE003FC599 /* Sources */,
+				01F4A557209296CE003FC599 /* Frameworks */,
+				01F4A558209296CE003FC599 /* Resources */,
+				0127B36820937BB700B910C1 /* CopyFiles */,
+				0127B39A209386DB00B910C1 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FBXImporterBundle_OSX;
+			productName = FBXImporterBundle_OSX;
+			productReference = 01F4A55A209296CE003FC599 /* FBXImporterBundle_OSX.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		01F4A552209296CE003FC599 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0930;
+				ORGANIZATIONNAME = BrandonF;
+				TargetAttributes = {
+					01F4A559209296CE003FC599 = {
+						CreatedOnToolsVersion = 9.3;
+					};
+				};
+			};
+			buildConfigurationList = 01F4A555209296CE003FC599 /* Build configuration list for PBXProject "FBXImporterBundle_OSX" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 01F4A551209296CE003FC599;
+			productRefGroup = 01F4A55B209296CE003FC599 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				01F4A559209296CE003FC599 /* FBXImporterBundle_OSX */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		01F4A558209296CE003FC599 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0127B39A209386DB00B910C1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export DYLIB=libfbxsdk.dylib\nmkdir \"$TARGET_BUILD_DIR/$TARGET_NAME.bundle/Contents/Frameworks\"\ncp -f \"$SRCROOT/$DYLIB\"\"$TARGET_BUILD_DIR/$TARGET_NAME.bundle/Contents/Frameworks\"\ninstall_name_tool -change @executable_path/$DYLIB @loader_path/../Resources/$DYLIB \"$TARGET_BUILD_DIR/$TARGET_NAME.bundle/Contents/MacOS/$PRODUCT_NAME\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		01F4A556209296CE003FC599 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01F4A56A20929CCE003FC599 /* FBXHandler_OSX.cpp in Sources */,
+				01F4A56D20929D75003FC599 /* ImporterHandler_OSX.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		01F4A55E209296CE003FC599 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2018.1.1/include\"";
+				LD_RUNPATH_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				MACH_O_TYPE = mh_dylib;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		01F4A55F209296CE003FC599 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2018.1.1/include\"";
+				LD_RUNPATH_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				MACH_O_TYPE = mh_dylib;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		01F4A561209296CE003FC599 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				INFOPLIST_FILE = FBXImporterBundle_OSX/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				LD_RUNPATH_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				MACH_O_TYPE = mh_bundle;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "FBXImporter.FBXImporterBundle-OSX";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = NO;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Debug;
+		};
+		01F4A562209296CE003FC599 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = "";
+				INFOPLIST_FILE = FBXImporterBundle_OSX/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				LD_RUNPATH_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
+				MACH_O_TYPE = mh_bundle;
+				OTHER_LDFLAGS = "";
+				PRODUCT_BUNDLE_IDENTIFIER = "FBXImporter.FBXImporterBundle-OSX";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = NO;
+				WRAPPER_EXTENSION = bundle;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		01F4A555209296CE003FC599 /* Build configuration list for PBXProject "FBXImporterBundle_OSX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01F4A55E209296CE003FC599 /* Debug */,
+				01F4A55F209296CE003FC599 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		01F4A560209296CE003FC599 /* Build configuration list for PBXNativeTarget "FBXImporterBundle_OSX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01F4A561209296CE003FC599 /* Debug */,
+				01F4A562209296CE003FC599 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 01F4A552209296CE003FC599 /* Project object */;
+}
