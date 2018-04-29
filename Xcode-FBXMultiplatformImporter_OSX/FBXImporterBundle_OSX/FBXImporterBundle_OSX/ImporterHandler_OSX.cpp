@@ -7,7 +7,6 @@
 //
 
 #include "ImporterHandler_OSX.h"
-#include "iostream"
 
 FBXHandler * CPPDLLCreateFBXHandler()
 {

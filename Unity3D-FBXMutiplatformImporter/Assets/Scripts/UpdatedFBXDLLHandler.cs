@@ -65,8 +65,9 @@ enum CRESULT
 };
 
 public class UpdatedFBXDLLHandler : MonoBehaviour {
-
+	
     /***************** Import DLL Functions *****************/
+
 	//[DllImport("FBXImporterDLL_WINDOWS")]
 	[DllImport("FBXImporterBundle_OSX")]
     static public extern IntPtr CPPDLLCreateFBXHandler();
@@ -254,9 +255,9 @@ public class UpdatedFBXDLLHandler : MonoBehaviour {
         //CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\TestSciFiWithHierarchyNoAnimTriangulated.fbx");
         //CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\SciFiCharacter\\TestSciFiWithHierarchy.fbx");
         //CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "C:\\Users\\Brandon\\Desktop\\GameEngineBF\\EngineBJF\\FBXLibraryHandler\\CyberPunksMap\\StressTestFBXLoader.fbx");
-		CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "/Users/doghead1/Documents/GitHub/FBXMultiplatformImporter/StressTestFBXLoader.fbx");
+		CRESULT result = (CRESULT)CPPDLLLoadFBXFile(m_cppFBXHandler, "/Users/doghead1/Downloads/StressTestFbxLoader2014And2015Model.fbx");
 		DateTime m_timeAfterFileLoad = DateTime.Now;
-
+		print (result);
         m_durationFileLoad = m_timeAfterFileLoad - m_timeBeforeFileLoad;
 
         switch (result)

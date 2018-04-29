@@ -3,20 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>files</key>
-	<dict>
-		<key>Resources/libfbxsdk.dylib</key>
-		<data>
-		B3MRo/+d0hQArqllznuhRD3+Qkw=
-		</data>
-	</dict>
+	<dict/>
 	<key>files2</key>
 	<dict>
-		<key>Resources/libfbxsdk.dylib</key>
+		<key>MacOS/libfbxsdk.dylib</key>
 		<dict>
-			<key>hash2</key>
+			<key>cdhash</key>
 			<data>
-			WABFElhvKAGjKd03QGNW6+b4TSIMTVYiEMR+8WcxAI8=
+			GpE66Hy5Vs79Rex4+hhknEvv3Sw=
 			</data>
+			<key>requirement</key>
+			<string>cdhash H"6a4c72aa6b46a7145ecc70c1f09c982cf81c792b" or cdhash H"1a913ae87cb956cefd45ec78fa18649c4befdd2c" or cdhash H"423a596c6c70f722434c7a9f99e856d12ab1129a" or cdhash H"ef8149d7366c69d68386660550de819bf0d8bed5"</string>
 		</dict>
 	</dict>
 	<key>rules</key>

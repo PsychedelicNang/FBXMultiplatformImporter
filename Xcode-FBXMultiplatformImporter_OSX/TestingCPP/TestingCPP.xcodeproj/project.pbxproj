@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		010E4F88209633F20033A8E3 /* libfbxsdk.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 010E4F87209633F20033A8E3 /* libfbxsdk.dylib */; };
+		010E4F8A209633FE0033A8E3 /* libfbxsdk.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 010E4F89209633FE0033A8E3 /* libfbxsdk.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		01EAE717209269B0007DEBCE /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01EAE716209269B0007DEBCE /* main.cpp */; };
-		01EAE72620928915007DEBCE /* libfbxsdk.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EAE71E20926A82007DEBCE /* libfbxsdk.dylib */; };
-		01EAE72720928921007DEBCE /* libfbxsdk.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EAE72020926A8E007DEBCE /* libfbxsdk.dylib */; };
 		01EAE72A20928C11007DEBCE /* FBXHandler_TESTING.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 01EAE72920928C11007DEBCE /* FBXHandler_TESTING.cpp */; };
 /* End PBXBuildFile section */
 
@@ -20,20 +20,19 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				010E4F8A209633FE0033A8E3 /* libfbxsdk.dylib in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		010E4F87209633F20033A8E3 /* libfbxsdk.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfbxsdk.dylib; path = "../../../../../../../Applications/Autodesk/FBX SDK/2016.1.2/lib/clang/debug/libfbxsdk.dylib"; sourceTree = "<group>"; };
+		010E4F89209633FE0033A8E3 /* libfbxsdk.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfbxsdk.dylib; path = "../../../../../../../Applications/Autodesk/FBX SDK/2016.1.2/lib/clang/debug/libfbxsdk.dylib"; sourceTree = "<group>"; };
 		01EAE713209269B0007DEBCE /* TestingCPP */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestingCPP; sourceTree = BUILT_PRODUCTS_DIR; };
 		01EAE716209269B0007DEBCE /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		01EAE71E20926A82007DEBCE /* libfbxsdk.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfbxsdk.dylib; path = "../../../../../../Applications/Autodesk/FBX SDK/2018.1.1/lib/clang/debug/libfbxsdk.dylib"; sourceTree = "<group>"; };
-		01EAE72020926A8E007DEBCE /* libfbxsdk.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfbxsdk.dylib; path = "../../../../../../Applications/Autodesk/FBX SDK/2018.1.1/lib/clang/release/libfbxsdk.dylib"; sourceTree = "<group>"; };
 		01EAE72820928C11007DEBCE /* FBXHandler_TESTING.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBXHandler_TESTING.h; sourceTree = "<group>"; };
 		01EAE72920928C11007DEBCE /* FBXHandler_TESTING.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FBXHandler_TESTING.cpp; sourceTree = "<group>"; };
-		01EAE72B2092903F007DEBCE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		01EAE72D20929045007DEBCE /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,8 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				01EAE72720928921007DEBCE /* libfbxsdk.dylib in Frameworks */,
-				01EAE72620928915007DEBCE /* libfbxsdk.dylib in Frameworks */,
+				010E4F88209633F20033A8E3 /* libfbxsdk.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,6 +50,7 @@
 		01EAE70A209269B0007DEBCE = {
 			isa = PBXGroup;
 			children = (
+				010E4F89209633FE0033A8E3 /* libfbxsdk.dylib */,
 				01EAE715209269B0007DEBCE /* TestingCPP */,
 				01EAE714209269B0007DEBCE /* Products */,
 				01EAE71D20926A82007DEBCE /* Frameworks */,
@@ -79,10 +78,7 @@
 		01EAE71D20926A82007DEBCE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				01EAE72D20929045007DEBCE /* GLUT.framework */,
-				01EAE72B2092903F007DEBCE /* SystemConfiguration.framework */,
-				01EAE72020926A8E007DEBCE /* libfbxsdk.dylib */,
-				01EAE71E20926A82007DEBCE /* libfbxsdk.dylib */,
+				010E4F87209633F20033A8E3 /* libfbxsdk.dylib */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -203,8 +199,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2018.1.1/include\"";
-				LIBRARY_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2018.1.1/lib/clang/debug\"";
+				HEADER_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -258,8 +254,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2018.1.1/include\"";
-				LIBRARY_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2018.1.1/lib/clang/release\"";
+				HEADER_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -270,6 +266,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2016.1.2/include\"";
+				LIBRARY_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2016.1.2/lib/clang/debug\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -278,6 +276,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2016.1.2/include\"";
+				LIBRARY_SEARCH_PATHS = "\"/Applications/Autodesk/FBX SDK/2016.1.2/lib/clang/debug\"";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

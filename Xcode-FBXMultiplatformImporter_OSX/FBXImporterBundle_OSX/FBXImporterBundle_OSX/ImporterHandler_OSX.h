@@ -10,7 +10,6 @@
 #define ImporterHandler_OSX_h
 
 #include "FBXHandler_OSX.h"
-#include <dlfcn.h>
 
 extern "C" {
     FBXHandler* CPPDLLCreateFBXHandler();

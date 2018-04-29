@@ -7,7 +7,6 @@
 //
 
 #include "FBXHandler_OSX.h"
-#include <dlfcn.h>
 
 Vector3::Vector3() {
     x = 0.f;
@@ -246,15 +245,15 @@ CRESULT FBXHandler::LoadFBXFile(const char * _filePath)
     
     // Create an importer using the SDK manager.
     FbxImporter* lImporter = FbxImporter::Create(lSdkManager, "");
-    
+
     // Use the first argument as the filename for the importer.
-    if (!lImporter->Initialize(_filePath, -1, lSdkManager->GetIOSettings())) {
+    if (!lImporter->Initialize(_filePath)) {
         return CRESULT_INCORRECT_FILE_PATH;
     }
     
     // Create a new scene so that it can be populated by the imported file.
     FbxScene* lScene = FbxScene::Create(lSdkManager, "myScene");
-    
+        
     m_scene = new Scene();
     
     // Import the contents of the file into the scene.
@@ -267,7 +266,7 @@ CRESULT FBXHandler::LoadFBXFile(const char * _filePath)
     
     // Destroy the SDK manager and all the other objects it was handling.
     lSdkManager->Destroy();
-    
+
     return CRESULT_SUCCESS;
 }
 
@@ -276,7 +275,7 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
     
     CRESULT result = CRESULT_SUCCESS;
     
-    const char* name = _inOutFbxNode->GetName();
+    //const char* name = _inOutFbxNode->GetName();
     
     unsigned childCount = _inOutFbxNode->GetChildCount();
     
@@ -294,7 +293,7 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
     {
         FbxNode* currentChild = _inOutFbxNode->GetChild(currIndex);
         
-        const char* currentChildName = currentChild->GetName();
+        //const char* currentChildName = currentChild->GetName();
         
         result = RunTasks(_objectIndex, _scene, currentChild);
         
@@ -810,7 +809,7 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
         int objectIndex = 0;
         
         m_scene->m_numberOfObjects = _fbxScene->GetGeometryCount();
-        
+
         if (m_scene->m_numberOfObjects <= 0)
             return CRESULT_NO_OBJECTS_IN_SCENE;
         
@@ -833,7 +832,7 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
                 continue;
             }
             
-            const char* tName = tNode->GetName();
+            //const char* tName = tNode->GetName();
             
             result = RunTasks(objectIndex, m_scene, tNode);
             if (result != CRESULT_SUCCESS)
@@ -863,4 +862,3 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
     
     return CRESULT_ROOT_NODE_NOT_FOUND;
 }
-
