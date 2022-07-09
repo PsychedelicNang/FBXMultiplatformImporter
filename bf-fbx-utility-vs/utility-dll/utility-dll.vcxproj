@@ -30,9 +30,9 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{019F1AF1-5DC8-4256-8DD3-23094D2F1E86}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>VisualStudioFBXMultiplatformImporter</RootNamespace>
+    <RootNamespace>utility-dll</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
-    <ProjectName>FBXImporterDLL_WINDOWS</ProjectName>
+    <ProjectName>utility-dll</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
