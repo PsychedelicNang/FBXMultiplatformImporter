@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\ConsoleAppForTestingDLL.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\utility-dll\utility-dll.vcxproj">
       <Project>{019f1af1-5dc8-4256-8dd3-23094d2f1e86}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="source\main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

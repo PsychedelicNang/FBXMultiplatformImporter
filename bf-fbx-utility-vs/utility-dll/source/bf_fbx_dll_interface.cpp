@@ -1,5 +1,5 @@
-#include "FBXHandler_Windows.h" // <- Must be first
-#include "ImporterHandler_Windows.h"
+#include "fbx_interface.h" // <- Must be first
+#include "bf_fbx_dll_interface.h"
 
 FBXIMPORTER_WINDOWSDLL_API FBXHandler * CPPDLLCreateFBXHandler()
 {

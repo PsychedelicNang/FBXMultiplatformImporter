@@ -6,7 +6,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\ConsoleAppForTestingDLL.cpp">
+    <ClCompile Include="source\main.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

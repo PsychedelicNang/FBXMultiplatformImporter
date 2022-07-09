@@ -1,5 +1,6 @@
+
 #include "fbxsdk.h" // <- Must be first
-#include "FBXHandler_Windows.h"
+#include "fbx_interface.h"
 #include <string>
 
 Vector3::Vector3() {

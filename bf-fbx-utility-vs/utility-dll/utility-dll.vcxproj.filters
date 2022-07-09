@@ -6,18 +6,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\FBXHandler_Windows.cpp">
+    <ClCompile Include="source\bf_fbx_dll_interface.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\ImporterHandler_Windows.cpp">
+    <ClCompile Include="source\fbx_interface.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\FBXHandler_Windows.h">
+    <ClInclude Include="source\fbx_interface.h">
       <Filter>source</Filter>
     </ClInclude>
-    <ClInclude Include="source\ImporterHandler_Windows.h">
+    <ClInclude Include="source\bf_fbx_dll_interface.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
