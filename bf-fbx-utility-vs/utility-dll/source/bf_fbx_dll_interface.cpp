@@ -1,21 +1,21 @@
 #include "fbx_interface.h" // <- Must be first
 #include "bf_fbx_dll_interface.h"
 
-FBXIMPORTER_WINDOWSDLL_API FBXHandler * CPPDLLCreateFBXHandler()
+FBXIMPORTER_WINDOWSDLL_API FBXHandler * CreateFBXHandler()
 {
 	return new FBXHandler();
 }
 
-FBXIMPORTER_WINDOWSDLL_API void CPPDLLDestroyFBXHandler(FBXHandler * _fbxHandler)
+FBXIMPORTER_WINDOWSDLL_API void DestroyFBXHandler(FBXHandler * _fbxHandler)
 {
-	if (_fbxHandler != 0)
+	if (_fbxHandler)
 	{
 		delete _fbxHandler;
-		_fbxHandler = 0;
+		_fbxHandler = nullptr;
 	}
 }
 
-FBXIMPORTER_WINDOWSDLL_API int CPPDLLLoadFBXFile(FBXHandler * _fbxHandler, const char * _filePath)
+FBXIMPORTER_WINDOWSDLL_API int LoadFBXFile(FBXHandler * _fbxHandler, const char * _filePath)
 {
 	return _fbxHandler->LoadFBXFile(_filePath);
 }

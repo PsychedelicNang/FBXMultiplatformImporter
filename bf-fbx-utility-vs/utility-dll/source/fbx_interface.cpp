@@ -1,7 +1,8 @@
-
 #include "fbxsdk.h" // <- Must be first
 #include "fbx_interface.h"
 #include <string>
+
+using namespace CMath;
 
 Vector3::Vector3() {
 	x = 0.f;
@@ -39,6 +40,7 @@ Vector4::~Vector4() {
 	w = 0.0f;
 }
 
+#if USE_MATERIALS
 Material::PropertyData::PropertyData() {
 	m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
 	m_textureRelativeFileName = 0;
@@ -46,7 +48,7 @@ Material::PropertyData::PropertyData() {
 }
 
 Material::PropertyData::~PropertyData() {
-	m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
+	//m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
 	if (m_textureRelativeFileName)
 	{
 		delete[] m_textureRelativeFileName;
@@ -61,33 +63,35 @@ Material::PropertyData::~PropertyData() {
 
 Material::Material() {
 	m_materialType = MaterialType::MATERIALTYPE_LAMBERT;
-	m_materialProperties = new PropertyData*[PropertyType::PROPERTYTYPE_COUNT];
-	for (int i = 0; i < PropertyType::PROPERTYTYPE_COUNT; i++)
-	{
-		m_materialProperties[i] = new PropertyData();
-	}
+	m_materialProperties = new PropertyData[PropertyType::PROPERTYTYPE_COUNT];
+	//for (int i = 0; i < PropertyType::PROPERTYTYPE_COUNT; i++)
+	//{
+	//	m_materialProperties[i] = new PropertyData();
+	//}
 
 	m_textureCount = 0;
 }
 
 Material::~Material() {
-	m_materialType = MaterialType::MATERIALTYPE_LAMBERT;
-	for (int i = 0; i < PropertyType::PROPERTYTYPE_COUNT; i++)
-	{
-		if (m_materialProperties[i]) {
-			delete m_materialProperties[i];
-			m_materialProperties[i] = 0;
-		}
-	}
+	//m_materialType = MaterialType::MATERIALTYPE_LAMBERT;
+	//for (int i = 0; i < PropertyType::PROPERTYTYPE_COUNT; i++)
+	//{
+	//	if (m_materialProperties[i]) {
+	//		delete m_materialProperties[i];
+	//		m_materialProperties[i] = 0;
+	//	}
+	//}
 
 	if (m_materialProperties) {
-		delete m_materialProperties;
+		delete[] m_materialProperties;
 		m_materialProperties = 0;
 	}
 
 	m_textureCount = 0;
 }
+#endif
 
+#if USE_MESHES
 Mesh::Mesh() {
 	m_allVerticesPositions = 0;
 	m_allVerticesNormals = 0;
@@ -125,14 +129,18 @@ Mesh::~Mesh() {
 	m_vertexCount = 0;
 	m_indexCount = 0;
 }
+#endif
 
 Object::Object() {
 	m_parentArrayIndexID = 0;
 	m_childrenArrayIndexIDs = 0;
-	//m_parent = 0;
+#if USE_MESHES
 	m_mesh = 0;
-	//m_children = 0;
-	m_materials = 0;
+#endif
+
+#if USE_MATERIALS
+	m_materials = { 0 };
+#endif
 
 	m_childrenCount = 0;
 	m_materialCount = 0;
@@ -141,20 +149,26 @@ Object::Object() {
 }
 
 Object::~Object() {
+#if USE_MESHES
 	if (m_mesh)
 	{
 		delete m_mesh;
 		m_mesh = 0;
 	}
+#endif
 
-	for (int i = 0; i < (int)m_materialCount; i++)
-	{
-		if (m_materials[i])
-		{
-			delete m_materials[i];
-			m_materials[i] = 0;
-		}
-	}
+#if USE_MATERIALS
+
+	//for (int i = 0; i < (int)m_materialCount; i++)
+	//{
+	//	if (m_materials[i])
+	//	{
+	//		delete m_materials[i];
+	//		m_materials[i] = 0;
+	//	}
+	//}
+
+#endif
 
 	m_parentArrayIndexID = 0;
 
@@ -163,26 +177,19 @@ Object::~Object() {
 		m_childrenArrayIndexIDs = 0;
 	}
 
+#if USE_MATERIALS
 	if (m_materials)
 	{
-		delete m_materials;
+		delete[] m_materials;
 		m_materials = 0;
 	}
-
-	/*if (m_children)
-	{
-	delete m_children;
-	m_children = 0;
-	}*/
+#endif
 
 	if (m_name)
 	{
 		delete[]m_name;
 		m_name = 0;
 	}
-
-	//m_children.clear();
-	//m_materials.clear();
 
 	m_childrenCount = 0;
 
@@ -196,22 +203,21 @@ Scene::Scene() {
 }
 
 Scene::~Scene() {
-	for (int i = 0; i < (int)m_numberOfObjects; i++)
-	{
-		if (m_objects[i])
-		{
-			delete m_objects[i];
-			m_objects[i] = 0;
-		}
-	}
+	//for (int i = 0; i < (int)m_numberOfObjects; i++)
+	//{
+	//	if (m_objects[i])
+	//	{
+	//		delete m_objects[i];
+	//		m_objects[i] = 0;
+	//	}
+	//}
+
 
 	if (m_objects)
 	{
-		delete m_objects;
+		delete[] m_objects;
 		m_objects = 0;
 	}
-
-	//m_objects.clear();
 
 	m_numberOfObjects = 0;
 }
@@ -275,13 +281,9 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
 
 	unsigned previousChildrenPassed = _numberOfChildrenPassed;
 
-	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children = new Object*[childCount];
-	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children.resize(childCount);
+	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed].m_childrenArrayIndexIDs = new int[childCount];
 
-	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenArrayIndexIDs = new int[childCount];
-	//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenArrayIndexIDs.resize(childCount);
-
-	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenCount = childCount;
+	_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed].m_childrenCount = childCount;
 
 	for (unsigned currIndex = 0; currIndex < childCount; currIndex++)
 	{
@@ -296,23 +298,15 @@ CRESULT FBXHandler::LoadSceneHelperFunction(int& _objectIndex, Scene* _scene, Fb
 
 		if (currIndex != 0)
 		{
-			_scene->m_objects[_objectIndex]->m_parentArrayIndexID = _previousCallsParent + previousChildrenPassed;
+			_scene->m_objects[_objectIndex].m_parentArrayIndexID = _previousCallsParent + previousChildrenPassed;
 
-			_scene->m_objects[_currentRootNodeIndex + previousChildrenPassed]->m_childrenArrayIndexIDs[currIndex] = _objectIndex;
-
-			/*_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_previousCallsParent + previousChildrenPassed];
-
-			_scene->m_objects[_currentRootNodeIndex + previousChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];*/
+			_scene->m_objects[_currentRootNodeIndex + previousChildrenPassed].m_childrenArrayIndexIDs[currIndex] = _objectIndex;
 		}
 		else
 		{
-			_scene->m_objects[_objectIndex]->m_parentArrayIndexID = _currentRootNodeIndex + _numberOfChildrenPassed;
+			_scene->m_objects[_objectIndex].m_parentArrayIndexID = _currentRootNodeIndex + _numberOfChildrenPassed;
 
-			_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_childrenArrayIndexIDs[currIndex] = _objectIndex;
-
-			/*_scene->m_objects[_objectIndex]->m_parent = _scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed];
-
-			//_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed]->m_children[currIndex] = _scene->m_objects[_objectIndex];*/
+			_scene->m_objects[_currentRootNodeIndex + _numberOfChildrenPassed].m_childrenArrayIndexIDs[currIndex] = _objectIndex;
 		}
 
 		++_numberOfChildrenPassed;
@@ -340,16 +334,20 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 	{
 		FbxMesh* theMesh = (FbxMesh*)geometry;
 
-		_scene->m_objects[_objectIndex] = new Object();
-		_scene->m_objects[_objectIndex]->m_mesh = new Mesh();
+		//_scene->m_objects[_objectIndex] = new Object();
 
-		_scene->m_objects[_objectIndex]->m_arrayIndexID = _objectIndex;
+#if USE_MESHES
+		_scene->m_objects[_objectIndex].m_mesh = new Mesh();
+#endif
+
+		_scene->m_objects[_objectIndex].m_arrayIndexID = _objectIndex;
 
 		const char* name = _fbxNode->GetName();
-		m_scene->m_objects[_objectIndex]->m_name = new char[strlen(name) + 1];
-		strncpy(m_scene->m_objects[_objectIndex]->m_name, name, strlen(name) + 1);
+		m_scene->m_objects[_objectIndex].m_name = new char[strlen(name) + 1];
+		strncpy(m_scene->m_objects[_objectIndex].m_name, name, strlen(name) + 1);
 
-		Mesh* currentMesh = _scene->m_objects[_objectIndex]->m_mesh;
+#if USE_MESHES
+		Mesh* currentMesh = _scene->m_objects[_objectIndex].m_mesh;
 
 		int mPolygonCount = theMesh->GetPolygonCount();
 		int mPolygonVertexCount = theMesh->GetControlPointsCount();
@@ -541,6 +539,7 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 			delete mSubMeshes[i];
 		}
 		mSubMeshes.Clear();
+#endif
 
 		return CRESULT_SUCCESS;
 	}
@@ -555,21 +554,23 @@ CRESULT FBXHandler::FillOutMesh(int& _objectIndex, Scene* _scene, FbxNode* _fbxN
 
 CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode * _fbxNode)
 {
-	_scene->m_objects[_objectIndex]->m_arrayIndexID = _objectIndex;
+	_scene->m_objects[_objectIndex].m_arrayIndexID = _objectIndex;
 
 	unsigned materialCount = _fbxNode->GetMaterialCount();
 
 	if (materialCount <= 0)
 		return CRESULT_SUCCESS;
 
-	m_scene->m_objects[_objectIndex]->m_materialCount = materialCount;
-	m_scene->m_objects[_objectIndex]->m_materials = new Material*[materialCount];
-	//m_scene->m_objects[_objectIndex]->m_materials.resize(materialCount);
+	m_scene->m_objects[_objectIndex].m_materialCount = materialCount;
+#if USE_MATERIALS
+	m_scene->m_objects[_objectIndex].m_materials = new Material[materialCount];
+#endif
 
+#if USE_MATERIALS
 	for (unsigned currMaterialIndex = 0; currMaterialIndex < materialCount; currMaterialIndex++)
 	{
-		m_scene->m_objects[_objectIndex]->m_materials[currMaterialIndex] = new Material();
-		Material* currentMaterial = m_scene->m_objects[_objectIndex]->m_materials[currMaterialIndex];
+		//m_scene->m_objects[_objectIndex].m_materials[currMaterialIndex] = new Material();
+		Material* currentMaterial = &m_scene->m_objects[_objectIndex].m_materials[currMaterialIndex];
 
 		FbxSurfaceMaterial* currentFBXMaterial = _fbxNode->GetMaterial(currMaterialIndex);
 		if (!currentFBXMaterial) break;
@@ -581,7 +582,7 @@ CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode 
 		FbxProperty lProperty = currentFBXMaterial->GetFirstProperty();
 		while (lProperty.IsValid())
 		{
-			Material::PropertyData* currentProperty = 0;
+			Material::PropertyData* currentProperty = nullptr;
 
 			FbxString fbxName = lProperty.GetName();
 
@@ -591,83 +592,83 @@ CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode 
 			if (currentFBXMaterial->Is<FbxSurfacePhong>())
 			{
 				if ("SpecularColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SPECULAR;
 				}
 				else if ("SpecularFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SPECULAR];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SPECULAR;
 				}
 				else if ("Shininess" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SHININESS];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_SHININESS];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_SHININESS;
 				}
 				else if ("ReflectionColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_REFLECTION;
 				}
 				else if ("ReflectionFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_REFLECTION];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_REFLECTION;
 				}
 				else if ("EmissiveColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
 				}
 				else if ("EmissiveFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
 				}
 				else if ("AmbientColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
 				}
 				else if ("AmbientFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
 				}
 				else if ("DiffuseColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
 				}
 				else if ("DiffuseFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
 				}
 				else if ("Bump" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
 				}
 				else if ("BumpFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
 				}
 				else if ("NormalMap" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_NORMAL;
 				}
 				else if ("TransparentColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
 				}
 				else if ("TransparencyFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
 				}
 				else if ("DisplacementColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
 				}
 				else if ("DisplacementFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
 				}
 				else if ("VectorDisplacementColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
 				}
 				else if ("VectorDisplacementFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
 				}
 			}
@@ -675,63 +676,63 @@ CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode 
 			else if (currentFBXMaterial->Is<FbxSurfaceLambert>())
 			{
 				if ("EmissiveColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
 				}
 				else if ("EmissiveFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_EMISSIVE];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_EMISSIVE;
 				}
 				else if ("AmbientColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
 				}
 				else if ("AmbientFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_AMBIENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_AMBIENT;
 				}
 				else if ("DiffuseColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
 				}
 				else if ("DiffuseFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DIFFUSE];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DIFFUSE;
 				}
 				else if ("Bump" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
 				}
 				else if ("BumpFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_BUMP];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_BUMP;
 				}
 				else if ("NormalMap" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_NORMAL];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_NORMAL;
 				}
 				else if ("TransparentColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
 				}
 				else if ("TransparencyFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_TRANSPARENCY];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_TRANSPARENCY;
 				}
 				else if ("DisplacementColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
 				}
 				else if ("DisplacementFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_DISPLACEMENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_DISPLACEMENT;
 				}
 				else if ("VectorDisplacementColor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
 				}
 				else if ("VectorDisplacementFactor" == strName) {
-					currentProperty = currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
+					currentProperty = &currentMaterial->m_materialProperties[Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT];
 					currentProperty->m_propertyType = Material::PropertyType::PROPERTYTYPE_VECTOR_DISPLACEMENT;
 				}
 			}
@@ -769,6 +770,7 @@ CRESULT FBXHandler::FillOutMaterial(int & _objectIndex, Scene * _scene, FbxNode 
 			lProperty = currentFBXMaterial->GetNextProperty(lProperty);
 		}
 	}
+#endif
 
 	return CRESULT_SUCCESS;
 }
@@ -807,8 +809,7 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 		if (m_scene->m_numberOfObjects <= 0)
 			return CRESULT_NO_OBJECTS_IN_SCENE;
 
-		m_scene->m_objects = new Object*[m_scene->m_numberOfObjects];
-		//m_scene->m_objects.resize(m_scene->m_numberOfObjects);
+		m_scene->m_objects = new Object[m_scene->m_numberOfObjects];
 
 		unsigned numberOfChildrenPassed = 0;
 
@@ -834,7 +835,7 @@ CRESULT FBXHandler::LoadFBXScene(FbxScene* _fbxScene)
 
 			int check = tNode->GetChildCount();
 
-			m_scene->m_objects[objectIndex]->m_childrenCount = check;
+			m_scene->m_objects[objectIndex].m_childrenCount = check;
 
 			++objectIndex;
 
