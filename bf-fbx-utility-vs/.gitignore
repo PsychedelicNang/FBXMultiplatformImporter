@@ -318,3 +318,6 @@ ASALocalRun/
 
 # MSBuild Binary and Structured Log
 *.binlog
+
+# Don't ignore any fbxsdk files
+!utility-dll/fbx-sdk/*
