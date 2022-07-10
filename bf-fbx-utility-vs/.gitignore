@@ -320,4 +320,4 @@ ASALocalRun/
 *.binlog
 
 # Don't ignore any fbxsdk files
-!utility-dll/fbx-sdk/*
+!utility-dll/fbx-sdk/**
