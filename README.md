@@ -7,4 +7,10 @@ OSX was supported as well but has since been depreciated.
 
 The Unity usage will be put into a seperate project.
 
-Note: Make sure the platform is set to x64 otherwise linking will fail and you will get compilier errors.
+#Notes 
+Make sure the platform is set to x64 otherwise linking will fail and you will get compilier errors.
+
+# Coding Standard
+This repository uses multiple languages and follows these style guides:
+- C++:	https://google.github.io/styleguide/cppguide.html
+- C#: 	https://github.com/raywenderlich/c-sharp-style-guide
