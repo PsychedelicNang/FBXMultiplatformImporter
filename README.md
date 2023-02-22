@@ -1,4 +1,4 @@
-# bf-fbx-utility
+# psych-fbx-utility
 This is a repository for a Visual Studio solution which interacts with the FBX SDK to parse FBX models into simple c++ data types.
 
 Originally this repository was for taking the parsed data to reconstruct the FBX model in Unity (Game Engine) at runtime using Marshalling.
