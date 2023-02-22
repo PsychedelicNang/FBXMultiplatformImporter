@@ -19,12 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\bf_fbx_dll_interface.cpp" />
     <ClCompile Include="source\fbx_interface.cpp" />
+    <ClCompile Include="source\psych_fbx_dll_interface.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="source\bf_fbx_dll_interface.h" />
     <ClInclude Include="source\fbx_interface.h" />
+    <ClInclude Include="source\psych_fbx_dll_interface.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -85,14 +85,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <TargetName>bffbxutilityd</TargetName>
+    <TargetName>psychfbxutilityd</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <TargetName>bffbxutility</TargetName>
+    <TargetName>psychfbxutility</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

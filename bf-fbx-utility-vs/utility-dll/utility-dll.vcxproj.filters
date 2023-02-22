@@ -6,10 +6,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\bf_fbx_dll_interface.cpp">
+    <ClCompile Include="source\fbx_interface.cpp">
       <Filter>source</Filter>
     </ClCompile>
-    <ClCompile Include="source\fbx_interface.cpp">
+    <ClCompile Include="source\psych_fbx_dll_interface.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -17,7 +17,7 @@
     <ClInclude Include="source\fbx_interface.h">
       <Filter>source</Filter>
     </ClInclude>
-    <ClInclude Include="source\bf_fbx_dll_interface.h">
+    <ClInclude Include="source\psych_fbx_dll_interface.h">
       <Filter>source</Filter>
     </ClInclude>
   </ItemGroup>
