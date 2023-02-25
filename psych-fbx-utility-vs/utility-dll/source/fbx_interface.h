@@ -91,7 +91,6 @@ namespace ObjectInfo {
 #endif
 }
 
-using namespace ObjectInfo;
 struct Object {
 	Object();
 	~Object();
@@ -99,11 +98,11 @@ struct Object {
 	int*	m_childrenArrayIndexIDs;
 
 #if USE_MESHES
-	Mesh*		m_mesh;
+	ObjectInfo::Mesh*		m_mesh;
 #endif
 
 #if USE_MATERIALS
-	Material*	m_materials;
+	ObjectInfo::Material*	m_materials;
 #endif
 
 	unsigned	m_childrenCount;

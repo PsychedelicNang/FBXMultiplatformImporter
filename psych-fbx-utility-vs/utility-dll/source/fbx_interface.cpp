@@ -3,6 +3,7 @@
 #include <string>
 
 using namespace CMath;
+using namespace ObjectInfo;
 
 Vector3::Vector3() {
 	x = 0.f;
@@ -48,7 +49,6 @@ Material::PropertyData::PropertyData() {
 }
 
 Material::PropertyData::~PropertyData() {
-	//m_propertyType = PropertyType::PROPERTYTYPE_EMISSIVE;
 	if (m_textureRelativeFileName)
 	{
 		delete[] m_textureRelativeFileName;
@@ -64,24 +64,10 @@ Material::PropertyData::~PropertyData() {
 Material::Material() {
 	m_materialType = MaterialType::MATERIALTYPE_LAMBERT;
 	m_materialProperties = new PropertyData[PropertyType::PROPERTYTYPE_COUNT];
-	//for (int i = 0; i < PropertyType::PROPERTYTYPE_COUNT; i++)
-	//{
-	//	m_materialProperties[i] = new PropertyData();
-	//}
-
 	m_textureCount = 0;
 }
 
 Material::~Material() {
-	//m_materialType = MaterialType::MATERIALTYPE_LAMBERT;
-	//for (int i = 0; i < PropertyType::PROPERTYTYPE_COUNT; i++)
-	//{
-	//	if (m_materialProperties[i]) {
-	//		delete m_materialProperties[i];
-	//		m_materialProperties[i] = 0;
-	//	}
-	//}
-
 	if (m_materialProperties) {
 		delete[] m_materialProperties;
 		m_materialProperties = 0;
@@ -157,19 +143,6 @@ Object::~Object() {
 	}
 #endif
 
-#if USE_MATERIALS
-
-	//for (int i = 0; i < (int)m_materialCount; i++)
-	//{
-	//	if (m_materials[i])
-	//	{
-	//		delete m_materials[i];
-	//		m_materials[i] = 0;
-	//	}
-	//}
-
-#endif
-
 	m_parentArrayIndexID = 0;
 
 	if (m_childrenArrayIndexIDs) {
@@ -203,16 +176,6 @@ Scene::Scene() {
 }
 
 Scene::~Scene() {
-	//for (int i = 0; i < (int)m_numberOfObjects; i++)
-	//{
-	//	if (m_objects[i])
-	//	{
-	//		delete m_objects[i];
-	//		m_objects[i] = 0;
-	//	}
-	//}
-
-
 	if (m_objects)
 	{
 		delete[] m_objects;
