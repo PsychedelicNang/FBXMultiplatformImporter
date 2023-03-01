@@ -7,7 +7,7 @@ OSX was supported as well but has since been depreciated.
 
 The Unity usage will be put into a seperate project.
 
-#Notes 
+# Notes 
 Make sure the platform is set to x64 otherwise linking will fail and you will get compilier errors.
 
 # Coding Standard
