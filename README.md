@@ -1,11 +1,9 @@
 # psych-fbx-utility
 This is a repository for a Visual Studio solution which interacts with the FBX SDK to parse FBX models into simple c++ data types.
 
-Originally this repository was for taking the parsed data to reconstruct the FBX model in Unity (Game Engine) at runtime using Marshalling.
+Originally this repository was for taking the parsed data to reconstruct the FBX model in Unity (Game Engine) at runtime using Marshalling. The Unity portion of this has been moved to it's own repository: https://github.com/PsychedelicNang/psych-fbx-utility-unity-demo
 
-OSX was supported as well but has since been depreciated.
-
-The Unity usage will be put into a seperate project.
+OSX was supported but has since been depreciated.
 
 # Notes 
 Make sure the platform is set to x64 otherwise linking will fail and you will get compilier errors.
