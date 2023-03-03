@@ -1,59 +1,71 @@
-﻿using CMath;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
+using Psych;
+using Psych.NativeMath;
 
 namespace MarshalClient
 {
     public static class FbxImporterDll
     {
-        [DllImport("bffbxutility")]
+#if DEBUG
+        [DllImport("psychfbxutilityd")]
+#else
+        [DllImport("psychfbxutility")]
+#endif
         public static extern IntPtr CreateFBXHandler();
 
-        [DllImport("bffbxutility")]
-        public static extern void DestroyFBXHandler(IntPtr theFBXHandlerObject);
+#if DEBUG
+        [DllImport("psychfbxutilityd")]
+#else
+        [DllImport("psychfbxutility")]
+#endif
+        public static extern void DestroyFBXHandler(IntPtr fbxHandlerObject);
 
-        [DllImport("bffbxutility", CallingConvention = CallingConvention.Cdecl)]
-        public static extern int LoadFBXFile(IntPtr theFBXHandlerObject, string fbxFilePath);
+
+#if DEBUG
+        [DllImport("psychfbxutilityd")]
+#else
+        [DllImport("psychfbxutility", CallingConvention = CallingConvention.Cdecl)]
+#endif
+
+        public static extern int LoadFBXFile(IntPtr fbxHandlerObject, string fbxFilePath);
     }
 
     class Program
     {
-        private static FBXHandler m_managedFBXHandler;
-        private static IntPtr m_unmanagedFBXHandler;
+        private static ManagedFbxHandler managedFbxHandler;
+        private static IntPtr unmanagedFbxHandler;
 
         static void Main(string[] args)
         {
-            TimeSpan m_durationFileLoad;
-            TimeSpan m_durationFileParsed;
-
             // C++ handler which is unmanaged memory (we need to delete by calling DLLDestroyFBXHandler())
-            m_unmanagedFBXHandler = FbxImporterDll.CreateFBXHandler();
+            unmanagedFbxHandler = FbxImporterDll.CreateFBXHandler();
 
-            DateTime m_timeBeforeFileLoad = DateTime.Now;
-            CRESULT result = (CRESULT)FbxImporterDll.LoadFBXFile(m_unmanagedFBXHandler, "C:/FBXMultiplatformImporter/bf-fbx-utility-vs/Resources/Lamp.fbx");
-            DateTime m_timeAfterFileLoad = DateTime.Now;
+            DateTime timeBeforeFileLoad = DateTime.Now;
+            CRESULT result = (CRESULT)FbxImporterDll.LoadFBXFile(unmanagedFbxHandler, "../../../../resources/SM_PistolArnold.fbx");
+            DateTime timeAfterFileLoad = DateTime.Now;
             Console.WriteLine(result);
-            m_durationFileLoad = m_timeAfterFileLoad - m_timeBeforeFileLoad;
+            var durationFileLoad = timeAfterFileLoad - timeBeforeFileLoad;
 
             switch (result)
             {
                 case CRESULT.CRESULT_SUCCESS:
                     {
-                        DateTime m_timeBeforeFileParsed = DateTime.Now;
-                        ParseFBXHandler();
-                        DateTime m_timeAfterFileParsed = DateTime.Now;
+                        DateTime timeBeforeFileParsed = DateTime.Now;
+                        ParseFbxHandler();
+                        DateTime timeAfterFileParsed = DateTime.Now;
 
-                        m_durationFileParsed = m_timeAfterFileParsed - m_timeBeforeFileParsed;
+                        var durationFileParsed = timeAfterFileParsed - timeBeforeFileParsed;
 
-                        if (m_durationFileLoad.Seconds > 0)
-                            Console.WriteLine("The FBX File loaded in: " + m_durationFileLoad.Seconds + "." + m_durationFileLoad.Milliseconds + " s");
+                        if (durationFileLoad.Seconds > 0)
+                            Console.WriteLine("The FBX File loaded in: " + durationFileLoad.Seconds + "." + durationFileLoad.Milliseconds + " s");
                         else
-                            Console.WriteLine("The FBX File loaded in: " + m_durationFileLoad.Milliseconds + " ms");
+                            Console.WriteLine("The FBX File loaded in: " + durationFileLoad.Milliseconds + " ms");
 
-                        if (m_durationFileParsed.Seconds > 0)
-                            Console.WriteLine("The FBX File was parsed in: " + m_durationFileParsed.Seconds + "." + m_durationFileParsed.Milliseconds + " s");
+                        if (durationFileParsed.Seconds > 0)
+                            Console.WriteLine("The FBX File was parsed in: " + durationFileParsed.Seconds + "." + durationFileParsed.Milliseconds + " s");
                         else
-                            Console.WriteLine("The FBX File was parsed in: " + m_durationFileParsed.Milliseconds + " ms");
+                            Console.WriteLine("The FBX File was parsed in: " + durationFileParsed.Milliseconds + " ms");
                     }
                     break;
                 case CRESULT.CRESULT_INCORRECT_FILE_PATH:
@@ -72,34 +84,34 @@ namespace MarshalClient
                     break;
             }
 
-            FbxImporterDll.DestroyFBXHandler(m_unmanagedFBXHandler);
+            FbxImporterDll.DestroyFBXHandler(unmanagedFbxHandler);
 
             Console.ReadKey();
         }
 
-        static void ParseFBXHandler()
+        static void ParseFbxHandler()
         {
-            m_managedFBXHandler = (FBXHandler)Marshal.PtrToStructure(m_unmanagedFBXHandler, typeof(FBXHandler));
+            managedFbxHandler = (ManagedFbxHandler)Marshal.PtrToStructure(unmanagedFbxHandler, typeof(ManagedFbxHandler));
 
-            Console.WriteLine((int)m_managedFBXHandler.FBXScene.m_numberOfObjects);
+            Console.WriteLine((int)managedFbxHandler.ManagedFBXScene.numberOfNativeObjects);
 
             for (uint currObjectIndex = 0;
-                 currObjectIndex < (int)m_managedFBXHandler.FBXScene.m_numberOfObjects;
+                 currObjectIndex < (int)managedFbxHandler.ManagedFBXScene.numberOfNativeObjects;
                  currObjectIndex++)
             {
-                Console.WriteLine(m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Name);
+                Console.WriteLine(managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedName);
 
-                Console.WriteLine("Object: " + m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Name + "\tMaterial Count: " + m_managedFBXHandler.FBXScene.Objects[currObjectIndex].m_numberOfMaterials + "\tNumber of Children: " + m_managedFBXHandler.FBXScene.Objects[currObjectIndex].m_numberOfChildren);
+                Console.WriteLine("ManagedObject: " + managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedName + "\tMaterial Count: " + managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].nativeNumberOfMaterials + "\tNumber of Children: " + managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].nativeNumberOfChildren);
 
-                Vector3[] vertices = m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Mesh.VertexPositions;
-                Vector3[] normals = m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Mesh.Normals;
-                Vector2[] uvs = m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Mesh.UVs;
+                Vector3[] vertices = managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedMesh.ManagedVertexPositions;
+                Vector3[] normals = managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedMesh.ManagedNormals;
+                Vector2[] uvs = managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedMesh.ManagedUVs;
 
-                Vector3[] unityVerts = new Vector3[m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Mesh.m_vertexCount];
-                Vector3[] unityNormals = new Vector3[m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Mesh.m_vertexCount];
-                Vector2[] unityUVs = new Vector2[m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Mesh.m_vertexCount];
+                Vector3[] unityVerts = new Vector3[managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedMesh.nativeVertexCount];
+                Vector3[] unityNormals = new Vector3[managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedMesh.nativeVertexCount];
+                Vector2[] unityUVs = new Vector2[managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedMesh.nativeVertexCount];
 
-                for (uint currVertex = 0; currVertex < m_managedFBXHandler.FBXScene.Objects[currObjectIndex].Mesh.m_vertexCount; currVertex++)
+                for (uint currVertex = 0; currVertex < managedFbxHandler.ManagedFBXScene.ManagedObjects[currObjectIndex].ManagedMesh.nativeVertexCount; currVertex++)
                 {
                     unityVerts[currVertex].x = vertices[currVertex].x;
                     unityVerts[currVertex].y = vertices[currVertex].y;
@@ -111,8 +123,6 @@ namespace MarshalClient
 
                     unityUVs[currVertex].x = uvs[currVertex].x;
                     unityUVs[currVertex].y = uvs[currVertex].y;
-
-                    Console.WriteLine($"{unityVerts[currVertex]}, {unityNormals[currVertex]}, {unityUVs[currVertex]}");
                 }
             }
         }

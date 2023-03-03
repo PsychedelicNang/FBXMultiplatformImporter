@@ -4,240 +4,211 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace CMath
+namespace Psych
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Vector2
+    namespace NativeMath
     {
-        public float x;
-        public float y;
-
-        public override string ToString()
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Vector2
         {
-            return $"{x}, {y}";
+            public float x;
+            public float y;
+
+            public override string ToString()
+            {
+                return $"{x}, {y}";
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Vector3
+        {
+            public float x;
+            public float y;
+            public float z;
+
+            public override string ToString()
+            {
+                return $"{x}, {y}, {z}";
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Vector4
+        {
+            public float x;
+            public float y;
+            public float z;
+            public float w;
+
+            public override string ToString()
+            {
+                return $"{x}, {y}, {z}, {w}";
+            }
         }
     }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Vector3
-    {
-        public float x;
-        public float y;
-        public float z;
 
-        public override string ToString()
+    namespace NativeMaterialInfo
+    {
+        public enum PropertyType
         {
-            return $"{x}, {y}, {z}";
-        }
-    }
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Vector4
-    {
-        public float x;
-        public float y;
-        public float z;
-        public float w;
+            PROPERTYTYPE_EMISSIVE = 0,
+            PROPERTYTYPE_AMBIENT,
+            PROPERTYTYPE_DIFFUSE,
+            PROPERTYTYPE_NORMAL,
+            PROPERTYTYPE_BUMP,
+            PROPERTYTYPE_TRANSPARENCY,
+            PROPERTYTYPE_DISPLACEMENT,
+            PROPERTYTYPE_VECTOR_DISPLACEMENT,
+            PROPERTYTYPE_SPECULAR,
+            PROPERTYTYPE_SHININESS,
+            PROPERTYTYPE_REFLECTION,
+            PROPERTYTYPE_COUNT
+        };
 
-        public override string ToString()
+        public enum MaterialType
         {
-            return $"{x}, {y}, {z}, {w}";
-        }
+            MATERIALTYPE_PHONG = 0,
+            MATERIALTYPE_LAMBERT
+        };
     }
-}
 
-namespace CMaterialInfo
-{
-    public enum PropertyType
+    enum CRESULT
     {
-        PROPERTYTYPE_EMISSIVE = 0,
-        PROPERTYTYPE_AMBIENT,
-        PROPERTYTYPE_DIFFUSE,
-        PROPERTYTYPE_NORMAL,
-        PROPERTYTYPE_BUMP,
-        PROPERTYTYPE_TRANSPARENCY,
-        PROPERTYTYPE_DISPLACEMENT,
-        PROPERTYTYPE_VECTOR_DISPLACEMENT,
-        PROPERTYTYPE_SPECULAR,
-        PROPERTYTYPE_SHININESS,
-        PROPERTYTYPE_REFLECTION,
-        PROPERTYTYPE_COUNT
+        CRESULT_SUCCESS = 0,
+        CRESULT_INCORRECT_FILE_PATH,
+        CRESULT_NO_OBJECTS_IN_SCENE,
+        CRESULT_NODE_WAS_NOT_GEOMETRY_TYPE,
+        CRESULT_ROOT_NODE_NOT_FOUND
     };
-
-    public enum MaterialType
-    {
-        MATERIALTYPE_PHONG = 0,
-        MATERIALTYPE_LAMBERT
-    };
-}
-
-enum CRESULT
-{
-    CRESULT_SUCCESS = 0,
-    CRESULT_INCORRECT_FILE_PATH,
-    CRESULT_NO_OBJECTS_IN_SCENE,
-    CRESULT_NODE_WAS_NOT_GEOMETRY_TYPE,
-    CRESULT_ROOT_NODE_NOT_FOUND
-};
 
 #if USE_MATERIALS
-public struct Material
-{
-    public struct PropertyData
+    public struct ManagedMaterial
     {
-        public readonly CMaterialInfo.PropertyType m_propertyType;
-        private IntPtr m_textureRelativeFileName;
-        public string TextureRelativeFileName => Marshal.PtrToStringAnsi(m_textureRelativeFileName);
+        public struct ManagedPropertyData
+        {
+            public readonly NativeMaterialInfo.PropertyType nativePropertyType;
+            private IntPtr nativeTextureRelativeFileName;
+            public string ManagedTextureRelativeFileName => Marshal.PtrToStringAnsi(nativeTextureRelativeFileName);
 
-        private IntPtr m_textureAbsoluteFilePath;
-        public string TextureAbsoluteFilePath => Marshal.PtrToStringAnsi(m_textureAbsoluteFilePath);
+            private IntPtr nativeTextureAbsoluteFilePath;
+            public string ManagedTextureAbsoluteFilePath => Marshal.PtrToStringAnsi(nativeTextureAbsoluteFilePath);
 
-        private CMath.Vector4 m_dataColorValues;
-    };
+            private NativeMath.Vector4 nativeDataColorValues;
+        };
 
-    public readonly CMaterialInfo.MaterialType m_materialType;
-    private IntPtr m_materialProperties;
+        public readonly NativeMaterialInfo.MaterialType nativeMaterialType;
+        private IntPtr nativeMaterialProperties;
 
-    public PropertyData[] MaterialProperties =>
-        MarshalHelpers.MarshalUnmanagedArray2Struct<PropertyData>(m_materialProperties, (int)CMaterialInfo.PropertyType.PROPERTYTYPE_COUNT);
+        public ManagedPropertyData[] ManagedMaterialProperties =>
+            MarshalHelpers.MarshalUnmanagedArray2Struct<ManagedPropertyData>(nativeMaterialProperties,
+                (int) NativeMaterialInfo.PropertyType.PROPERTYTYPE_COUNT);
 
-    //public Texture2D[] Textures
-    //{
-    //    get
-    //    {
-    //        Texture2D[] result = new Texture2D[m_textureCount];
-
-    //        var props = MaterialProperties;
-    //        for (int i = 0; i < props.Length; i++)
-    //        {
-    //            result[i] = MarshalHelpers.LoadPNG(props[i].TextureAbsoluteFilePath);
-    //        }
-
-    //        return result;
-    //    }
-    //}
-
-    public uint m_textureCount;
-}
+        public uint nativeTextureCount;
+    }
 #endif
 
 #if USE_MESHES
-public struct Mesh
-{
-    private IntPtr m_allVerticesPositions;
-    public CMath.Vector3[] VertexPositions =>
-        MarshalHelpers.MarshalUnmanagedArray2Struct<CMath.Vector3>(m_allVerticesPositions, (int)m_vertexCount);
+    public struct ManagedMesh
+    {
+        private IntPtr nativeAllVerticesPositions;
 
-    private IntPtr m_normals;
+        public NativeMath.Vector3[] ManagedVertexPositions =>
+            MarshalHelpers.MarshalUnmanagedArray2Struct<NativeMath.Vector3>(nativeAllVerticesPositions, (int) nativeVertexCount);
 
-    public CMath.Vector3[] Normals =>
-        MarshalHelpers.MarshalUnmanagedArray2Struct<CMath.Vector3>(m_normals, (int)m_vertexCount);
+        private IntPtr nativeNormals;
 
-    private IntPtr m_uvs;
+        public NativeMath.Vector3[] ManagedNormals =>
+            MarshalHelpers.MarshalUnmanagedArray2Struct<NativeMath.Vector3>(nativeNormals, (int) nativeVertexCount);
 
-    public CMath.Vector2[] UVs =>
-        MarshalHelpers.MarshalUnmanagedArray2Struct<CMath.Vector2>(m_uvs, (int)m_vertexCount);
+        private IntPtr nativeUvs;
 
-    private IntPtr m_indices;
+        public NativeMath.Vector2[] ManagedUVs =>
+            MarshalHelpers.MarshalUnmanagedArray2Struct<NativeMath.Vector2>(nativeUvs, (int) nativeVertexCount);
 
-    public uint[] Indices =>
-        MarshalHelpers.MarshalUnmanagedArray2Struct<uint>(m_indices, (int)m_indexCount);
+        private IntPtr nativeIndices;
 
-    private int[] ConvertedIndices =>
-        Array.ConvertAll(Indices, val => checked((int)val));
+        public uint[] ManagedIndices =>
+            MarshalHelpers.MarshalUnmanagedArray2Struct<uint>(nativeIndices, (int) nativeIndexCount);
 
-    public readonly uint m_vertexCount;
-    public readonly uint m_indexCount;
-}
+        private int[] ConvertedIndices =>
+            Array.ConvertAll(ManagedIndices, val => checked((int) val));
+
+        public readonly uint nativeVertexCount;
+        public readonly uint nativeIndexCount;
+    }
 #endif
 
-public struct Object
-{
-    private int m_parentArrayIndexID;
-    private IntPtr m_childrenArrayIndexIDs;
+    public struct ManagedObject
+    {
+        private int nativeParentArrayIndexID;
+        private IntPtr nativeChildrenArrayIndexIDs;
 
 #if USE_MESHES
-    private IntPtr m_mesh;
+        private IntPtr nativeMesh;
 
-    public Mesh Mesh => Marshal.PtrToStructure<Mesh>(m_mesh);
+        public ManagedMesh ManagedMesh => Marshal.PtrToStructure<ManagedMesh>(nativeMesh);
 #endif
 #if USE_MATERIALS
-    private IntPtr m_materials;
+        private IntPtr nativeMaterials;
 
-    public Material[] Materials =>
-        MarshalHelpers.MarshalUnmanagedArray2Struct<Material>(m_materials, (int)m_numberOfMaterials);
+        public ManagedMaterial[] ManagedMaterials =>
+            MarshalHelpers.MarshalUnmanagedArray2Struct<ManagedMaterial>(nativeMaterials, (int) nativeNumberOfMaterials);
 #endif
 
-    public readonly uint m_numberOfChildren;
-    public readonly uint m_numberOfMaterials;
+        public readonly uint nativeNumberOfChildren;
+        public readonly uint nativeNumberOfMaterials;
 
-    private IntPtr m_name;
+        private IntPtr nativeName;
 
-    public string Name =>
-        Marshal.PtrToStringAnsi(m_name);
+        public string ManagedName =>
+            Marshal.PtrToStringAnsi(nativeName);
 
-    public readonly uint m_arrayIndexID;
-}
-
-public struct ImportedFBXScene
-{
-    private IntPtr m_objects;
-    public readonly uint m_numberOfObjects;
-
-    public Object[] Objects =>
-        MarshalHelpers.MarshalUnmanagedArray2Struct<Object>(m_objects, (int)m_numberOfObjects);
-}
-
-public struct FBXHandler
-{
-    private IntPtr m_fbxScene;
-
-    public ImportedFBXScene FBXScene => Marshal.PtrToStructure<ImportedFBXScene>(m_fbxScene);
-}
-
-public class MarshalHelpers
-{
-    public static void MarshalUnmanagedArray2Struct<T>(IntPtr unmanagedArray, int length, out T[] managedArray)
-    {
-        var size = Marshal.SizeOf(typeof(T));
-        managedArray = new T[length];
-
-        for (int i = 0; i < length; i++)
-        {
-            IntPtr ins = new IntPtr(unmanagedArray.ToInt64() + i * size);
-            managedArray[i] = Marshal.PtrToStructure<T>(ins);
-        }
+        public readonly uint nativeArrayIndexID;
     }
 
-    public static T[] MarshalUnmanagedArray2Struct<T>(IntPtr unmanagedArray, int length)
+    public struct ManagedImportedFbxScene
     {
-        var size = Marshal.SizeOf(typeof(T));
-        T[] managedArray = new T[length];
+        private IntPtr nativeObjects;
+        public readonly uint numberOfNativeObjects;
 
-        for (int i = 0; i < length; i++)
-        {
-            IntPtr ins = new IntPtr(unmanagedArray.ToInt64() + i * size);
-            managedArray[i] = Marshal.PtrToStructure<T>(ins);
-        }
-
-        return managedArray;
+        public ManagedObject[] ManagedObjects =>
+            MarshalHelpers.MarshalUnmanagedArray2Struct<ManagedObject>(nativeObjects, (int) numberOfNativeObjects);
     }
 
-    //public static Texture2D LoadPNG(string _filePath)
-    //{
-    //    Texture2D tex = null;
-    //    byte[] fileData;
+    public struct ManagedFbxHandler
+    {
+        private IntPtr nativeFbxScene;
 
-    //    if (File.Exists(_filePath))
-    //    {
-    //        fileData = File.ReadAllBytes(_filePath);
-    //        tex = new Texture2D(1, 1);
-    //        tex.LoadImage(fileData); // LoadImage() auto resizes the texture dimensions.
-    //    }
+        public ManagedImportedFbxScene ManagedFBXScene => Marshal.PtrToStructure<ManagedImportedFbxScene>(nativeFbxScene);
+    }
 
-    //    else
-    //    {
-    //        return null;
-    //    }
+    public class MarshalHelpers
+    {
+        public static void MarshalUnmanagedArray2Struct<T>(IntPtr unmanagedArray, int length, out T[] managedArray)
+        {
+            var size = Marshal.SizeOf(typeof(T));
+            managedArray = new T[length];
 
-    //    return tex;
-    //}
+            for (int i = 0; i < length; i++)
+            {
+                IntPtr ins = new IntPtr(unmanagedArray.ToInt64() + i * size);
+                managedArray[i] = Marshal.PtrToStructure<T>(ins);
+            }
+        }
+
+        public static T[] MarshalUnmanagedArray2Struct<T>(IntPtr unmanagedArray, int length)
+        {
+            var size = Marshal.SizeOf(typeof(T));
+            T[] managedArray = new T[length];
+
+            for (int i = 0; i < length; i++)
+            {
+                IntPtr ins = new IntPtr(unmanagedArray.ToInt64() + i * size);
+                managedArray[i] = Marshal.PtrToStructure<T>(ins);
+            }
+
+            return managedArray;
+        }
+    }
 }
